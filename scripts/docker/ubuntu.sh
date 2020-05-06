@@ -2,9 +2,7 @@
 #!/bin/sh
 
 #ask for sudo promotion
-[ "$UID" -eq 0 ] || exec sudo "$0" "$@" && echo -n "sudo bash what: "
-read WHAT
-sudo $WHAT
+[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 
 apt-get remove docker docker-engine docker.io docker-ce docker-ce-cli containerd runc
 curl -fsSL https://get.docker.com -o get-docker.sh
