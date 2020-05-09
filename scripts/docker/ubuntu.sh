@@ -18,6 +18,7 @@ rm -rf /etc/docker/daemon.json
 touch /etc/docker/daemon.json
 cat >> /etc/docker/daemon.json << EOF
 {
+  "insecure-registries":["veex.docker.mirror:5000"],
   "registry-mirrors": [
     "https://registry.docker-cn.com",
     "http://hub-mirror.c.163.com",

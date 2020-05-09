@@ -1,13 +1,10 @@
-# k8s_stock_analysis_script
-It's a case study for k8s_docker_kafka_hadoop_flink_ML, only contains the build up scripts
+# docker registry and image build scripts libraries
 
 * install docker
-    1.sudo usermod -aG docker ${USER}
-    2.re-login
-    3.docker run hello-world
-* install k8s
-
-* pull flink docker
-
-* pull kafka docker
-    1.hub.docker.com/r/bitnami/kafka
+    1. cd docker
+    2. ./ubuntu.sh
+    
+* install Registry(currently we use veex.docker.mirror as registry, do not create your own one)
+    1. cd docker
+    2. ./registry.sh
+    3. docker images could be check on http://calvin.docker.mirror:8080/
