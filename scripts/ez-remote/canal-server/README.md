@@ -1,7 +1,7 @@
 # canal-server docker
 
 * pull the building environment docker image from registry
-    1. docker pull canal/canal-server:1.1.4
+    1. docker pull canal/canal-server:v1.1.4
     2. MySQL configuration must have the following lines:
         [mysqld]
         log-bin=mysql-bin
@@ -19,7 +19,7 @@
     1. follow instruction https://blog.csdn.net/daziyuanazhen/article/details/106098887
     2. sh run.sh/run_admin.sh for help (https://github.com/alibaba/canal/tree/canal-1.1.4/docker/run.sh)
     3. run example:
-        ./run.sh -e canal.admin.manager=192.168.1.141:8089 \
+        ./run.sh -e canal.admin.manager=127.0.0.1:8089 \
                 -e canal.admin.port=11110 \
                 -e canal.admin.user=admin \
                 -e canal.admin.passwd=4ACFE3202A5FF5CF467898FC58AAB1D615029441 \
