@@ -51,7 +51,7 @@ function getMyIp() {
 }
 
 CONFIG=${@:1}
-#VOLUMNS="-v $DATA:/home/admin/canal-server/logs"
+VOLUMNS="-v $DATA:/home/admin/canal-server/logs"
 PORTLIST="11110 11111 11112 9100"
 PORTS=""
 for PORT in $PORTLIST ; do
