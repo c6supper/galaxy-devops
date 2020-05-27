@@ -20,6 +20,7 @@
     2. sh run.sh/run_admin.sh for help (https://github.com/alibaba/canal/tree/canal-1.1.4/docker/run.sh)
     3. run example:
         a. cluster ./run.sh -e canal.admin.manager=calvin.docker.mirror:8089 \
+                -e canal.register.ip=calvin.docker.mirror \
                 -e canal.admin.port=11110 \
                 -e canal.admin.user=admin \
                 -e canal.admin.passwd=4ACFE3202A5FF5CF467898FC58AAB1D615029441 \

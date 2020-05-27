@@ -3,8 +3,8 @@ function usage() {
     echo "Usage:"
     echo "  run.sh [CONFIG]"
     echo "example :"
-    echo "  run.sh -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \\"
-    echo "         -e KAFKA_ADVERTISED_HOST_NAME=localhost "
+    echo "  run.sh -e KAFKA_ZOOKEEPER_CONNECT=calvin.docker.mirror:2181 \\"
+    echo "         -e KAFKA_ADVERTISED_HOST_NAME=calvin.docker.mirror "
     exit
 }
 

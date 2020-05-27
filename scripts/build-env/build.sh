@@ -19,9 +19,9 @@ docker build -t $NAME/$IMAGE:latest ./
 
 if [ "$#" -ge  "2" ]
   then
-    docker tag $NAME/$IMAGE:latest veex.docker.mirror:5000/$NAME/$IMAGE:latest
-    docker tag veex.docker.mirror:5000/$NAME/$IMAGE:latest veex.docker.mirror:5000/$NAME/$IMAGE:$version
-    docker push veex.docker.mirror:5000/$NAME/$IMAGE:latest
-    docker push veex.docker.mirror:5000/$NAME/$IMAGE:$version
+    docker tag $NAME/$IMAGE:latest calvin.docker.mirror:5000/$NAME/$IMAGE:latest
+    docker tag calvin.docker.mirror:5000/$NAME/$IMAGE:latest calvin.docker.mirror:5000/$NAME/$IMAGE:$version
+    docker push calvin.docker.mirror:5000/$NAME/$IMAGE:latest
+    docker push calvin.docker.mirror:5000/$NAME/$IMAGE:$version
 fi
 
