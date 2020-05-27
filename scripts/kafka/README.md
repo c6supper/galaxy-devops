@@ -8,4 +8,5 @@
 
 * Run docker
     run example:
-    a. ./run.sh 
+    a. ./run.sh -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
+                -e KAFKA_ADVERTISED_HOST_NAME=localhost

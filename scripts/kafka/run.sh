@@ -1,11 +1,10 @@
 #!/bin/bash
 function usage() {
     echo "Usage:"
-    echo "  run_admin.sh [CONFIG]"
+    echo "  run.sh [CONFIG]"
     echo "example :"
-    echo "  run_admin.sh -e server.port=8089 \\"
-    echo "         -e canal.adminUser=admin \\"
-    echo "         -e canal.adminPasswd=123456"
+    echo "  run.sh -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \\"
+    echo "         -e KAFKA_ADVERTISED_HOST_NAME=localhost "
     exit
 }
 
@@ -41,8 +40,8 @@ function getMyIp() {
 }
 
 CONFIG=${@:1}
-VOLUMNS="-v $DATA:/home/admin/canal-admin/logs"
-PORTLIST="8089"
+#VOLUMNS="-v $DATA:/home/kafka/logs"
+PORTLIST="9092"
 PORTS=""
 for PORT in $PORTLIST ; do
     #exist=`check_port $PORT`
@@ -71,9 +70,9 @@ case "`uname`" in
         bin_abs_path=`cd $(dirname $0); pwd`
         ;;
 esac
-BASE=${bin_abs_path}
-DATA="$BASE/data"
-mkdir -p $DATA
+#BASE=${bin_abs_path}
+#DATA="$BASE/data"
+#mkdir -p $DATA
 
 if [ $# -eq 0 ]; then
     usage
@@ -83,8 +82,7 @@ elif [ "$1" == "help" ] ; then
     usage
 fi
 
-MEMORY="-m 1024m"
 LOCALHOST=`getMyIp`
-cmd="docker run -d -it -h $LOCALHOST $CONFIG --name=canal-admin $VOLUMNS $NET_MODE $PORTS $MEMORY canal/canal-admin:v1.1.4"
+cmd="docker run -d -it -h $LOCALHOST $CONFIG --restart=always --name=kafka $VOLUMNS $NET_MODE $PORTS wurstmeister/kafka"
 echo $cmd
 eval $cmd

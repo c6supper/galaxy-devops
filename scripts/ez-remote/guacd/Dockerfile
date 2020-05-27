@@ -32,7 +32,7 @@ FROM debian:${DEBIAN_VERSION} AS builder
 #
 ARG PREFIX_DIR=/usr/local/guacamole
 
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;cat /etc/apt/sources.list
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
 
 # Build arguments
 ARG BUILD_DIR=/tmp/guacd-docker-BUILD
@@ -100,7 +100,7 @@ ARG RUNTIME_DEPENDENCIES="            \
 
 # Copy build artifacts into this stage
 COPY --from=builder ${PREFIX_DIR} ${PREFIX_DIR}
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;cat /etc/apt/sources.list
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
 # Bring runtime environment up to date and install runtime dependencies
 RUN apt-get update                                          && \
     apt-get install -y $RUNTIME_DEPENDENCIES                && \
