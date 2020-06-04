@@ -12,7 +12,7 @@
 
 * Run docker
     run example:
-    a. ./run.sh -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
-                -e KAFKA_ADVERTISED_HOST_NAME=localhost
-    b. docker run -d -it --name=kafka-manager -e ZK_HOSTS=127.0.0.1 \
+    a. ./run.sh -e KAFKA_ZOOKEEPER_CONNECT=calvin.cluster.1:2181 \
+                -e KAFKA_ADVERTISED_HOST_NAME=calvin.cluster.1
+    b. docker run -d -it --name=kafka-manager -e ZK_HOSTS=calvin.cluster.1 \
         --net=host --restart=always kafkamanager/kafka-manager

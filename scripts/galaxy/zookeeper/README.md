@@ -5,5 +5,4 @@
 
        
 * Run docker
-    1. docker run -p 2181:2181 -p 2888:2888 -p 3888:3888 -p 8080:8080 \
-        --name galaxy-zookeeper --restart always -d zookeeper:3.6.1
+    1. docker run --name galaxy-zookeeper --restart=always --net=host -d zookeeper:3.6.1
