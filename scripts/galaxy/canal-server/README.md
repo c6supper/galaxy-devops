@@ -7,6 +7,7 @@
         log-bin=mysql-bin
         binlog-format=ROW
         server_id=1
+	bind-address 0.0.0.0  (optional)
     3.Grant privileges for canal:
         CREATE USER canal IDENTIFIED BY 'canal';    
         GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'canal'@'%';    
