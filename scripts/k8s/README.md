@@ -1,8 +1,8 @@
-# canal-server docker
+# Using kubesphere as the DevOps
 
-* pull the building environment docker image from registry
-    1. $ docker pull zookeeper:3.6.1
+* detail refer to https://github.com/kubesphere/kubesphere
 
-       
-* Run docker
-    1. docker run -p 2181:2181 -p 2888:2888 -p 3888:3888 -p 8080:8080  --name galaxy-zookeeper --restart always -d zookeeper:3.6.1
+* start with All-in-One case 
+    1. curl -L https://kubesphere.io/download/stable/latest > installer.tar.gz \
+       && tar -zxf installer.tar.gz && cd kubesphere-all-v2.1.1/scripts
+       $ sudo ./install.sh
