@@ -13,11 +13,12 @@
     1.modify /etc/default/virtualbox
         SHUTDOWN=acpibutton
     2.sudo vim /etc/systemd/system/kubesphere.service
+    
         [Unit]
         Description=kubesphere
         After=network.target virtualbox.service
         Before=runlevel2.target shutdown.target
-         
+        
         [Service]
         User=c6supper
         Group=vboxusers
