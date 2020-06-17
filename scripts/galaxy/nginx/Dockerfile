@@ -79,7 +79,9 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
 RUN apt-get update                                          && \
     apt-get install -y $RUNTIME_DEPENDENCIES                && \
     apt-get install -y $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*                             && \
+    mkdir -p /var/log/nginx/                                && \
+    mkdir -p /var/lib/nginx/body
 
 # Expose the default listener port
 EXPOSE 80 443
