@@ -1,8 +1,9 @@
-# nginx 1.19.0 with external modules docker
+# web client docker
 
-* Dockerfile for nginx, changed repositories to mirrors in China. 
+* Dockerfile for web client, changed repositories to mirrors in China. 
        
 * Build docker
-    1.export nginx source code to directory "nginx"
-    2.export nginx profiles to directory "etc/nginx"
-    3.docker build --no-cache -t galaxy:nginx -f Dockerfile ./
+    1.export client app to current directory
+    2.export tomcat profiles to directory "etc/tomcat"
+    3.export client profiles to directory "etc/guacamole"
+    4.docker build --no-cache -t galaxy:ezremote-client -f Dockerfile ./
