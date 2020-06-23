@@ -8,7 +8,6 @@ proto $OVPN_PROTO
 port $OVPN_PORT
 tls-auth $OVPN_TLS_AUTH 0
 server $OVPN_IP_POOL 255.255.255.0 nopool
-client-connect /etc/openvpn/scripts/connect.sh $OVPN_IP_POOL
 ca $OVPN_CA
 cert $OVPN_CERT
 key $OVPN_KEY
@@ -26,3 +25,5 @@ else
   echo 'Skipping initialization'
   echo
 fi
+
+/bin/sh -c "$@"
