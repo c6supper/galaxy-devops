@@ -8,4 +8,4 @@
 
 * build release docker
     1. change the version
-    2. ../../build-env/build.sh c6super galaxy-tunnel release
+    2. ../../build-env/build.sh c6supper galaxy-tunnel release

@@ -10,7 +10,7 @@ COPY ./version $GALAXY_DIR/version
 COPY ./docker-entrypoint.sh /galaxy/docker-entrypoint.sh
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
-    apk add --update openvpn bc grep && \
+    apk add --update openvpn bc grep bash && \
     apk add --virtual temppkg &&  \
     apk del temppkg && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
