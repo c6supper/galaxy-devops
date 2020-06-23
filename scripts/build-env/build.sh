@@ -15,13 +15,13 @@ IMAGE=$2
 version=$(cat version)
 echo "version: $version"
 
-docker build -t $NAME/$IMAGE:latest ./
+docker build -t --no-cache $NAME/$IMAGE:latest ./
 
 if [ "$#" -ge  "2" ]
   then
-    docker tag $NAME/$IMAGE:latest calvin.docker.mirror:5000/$NAME/$IMAGE:latest
-    docker tag calvin.docker.mirror:5000/$NAME/$IMAGE:latest calvin.docker.mirror:5000/$NAME/$IMAGE:$version
-    docker push calvin.docker.mirror:5000/$NAME/$IMAGE:latest
-    docker push calvin.docker.mirror:5000/$NAME/$IMAGE:$version
+    docker login
+    docker tag $NAME/$IMAGE:latest $NAME/$IMAGE:$version
+    docker push $NAME/$IMAGE:latest
+    docker push $NAME/$IMAGE:$version
 fi
 

@@ -1,11 +1,11 @@
-# Use Debian as base for the build
+
 ARG DEBIAN_VERSION=stable
 # Use same Debian as the base for the runtime image
 FROM debian:${DEBIAN_VERSION}-slim
 
 ARG RUNTIME_DEPENDENCIES="            \
-        openvpn"
-
+        openvpn bc"
+COPY ./version /version
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
 # Bring runtime environment up to date and install runtime dependencies
 RUN apt-get update                                          && \
