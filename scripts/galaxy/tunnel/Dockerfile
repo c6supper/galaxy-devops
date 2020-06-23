@@ -1,28 +1,37 @@
+# Use same alphine as the base for the runtime image
+FROM alpine:3.12
 
-ARG DEBIAN_VERSION=stable
-# Use same Debian as the base for the runtime image
-FROM debian:${DEBIAN_VERSION}-slim
+MAINTAINER calvin <c6supper@hotmail.com>
 
-ARG RUNTIME_DEPENDENCIES="            \
-        openvpn bc"
-COPY ./version /version
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
-# Bring runtime environment up to date and install runtime dependencies
-RUN apt-get update                                          && \
-    apt-get install -y $RUNTIME_DEPENDENCIES                && \
-    apt-get install -y $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
-    rm -rf /var/lib/apt/lists/*
+ENV GALAXY_DIR /galaxy
+ENV OVPN_INITIALIZED_MARK "#patched"
+RUN mkdir -p $GALAXY_DIR
+COPY ./version $GALAXY_DIR/version
+COPY ./docker-entrypoint.sh /galaxy/docker-entrypoint.sh
 
-#RUN mkdir -p /var/run/sshd \
-#    && echo 'root:123' | chpasswd \
-#    && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-#    # SSH login fix. Otherwise user is kicked off after login
-#    && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
-#    && echo "export VISIBLE=now" >> /etc/profile
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --update openvpn bc grep && \
+    apk add --virtual temppkg &&  \
+    apk del temppkg && \
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 # Add configuration scripts
-COPY etc "/etc"
+COPY ./etc/openvpn "/etc/openvpn"
 
-STOPSIGNAL SIGTERM
-#
+ENV OPENVPN_DIR /etc/openvpn
+ENV OVPN_CONFIG $OPENVPN_DIR/server.conf
+# default configuration for openvpn
+ENV OVPN_PORT   1194
+ENV OVPN_PROTO  tcp
+ENV OVPN_TLS_AUTH ta.key
+ENV OVPN_IP_POOL  10.0.0.0
+ENV OVPN_CA ca.crt
+ENV OVPN_CERT server1.crt
+ENV OVPN_KEY server1.key
 
+# initilization for the first time
+ENTRYPOINT ["/galaxy/docker-entrypoint.sh"]
+
+EXPOSE 1194/tcp 1195/udp 1196/udp
+
+CMD ["openvpn --cd $OPENVPN_DIR --config $OVPN_CONFIG 2>&1"]
