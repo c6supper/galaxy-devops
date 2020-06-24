@@ -3,20 +3,16 @@
 set -ex
 
 patch_conf() {
-cat >> $OVPN_CONFIG <<EOF
-proto $OVPN_PROTO
-port $OVPN_PORT
-tls-auth $OVPN_TLS_AUTH 0
-server $OVPN_IP_POOL 255.255.255.0 nopool
-ca $OVPN_CA
-cert $OVPN_CERT
-key $OVPN_KEY
-EOF
+  defined_envs=$(printf '${%s} ' $(env | cut -d= -f1))
+  envsubst "$defined_envs" < "/etc/nginx/conf.d/server.conf.template" > "/etc/nginx/conf.d/server.conf"
 }
 
 if [ ! -f "$GALAXY_INITIALIZED_MARK" ]; then
   patch_conf
+  mkdir -p /var/lib/nginx/body
   touch $GALAXY_INITIALIZED_MARK
+  apk del gettext
+  rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
   echo
   echo 'openvpn init process complete; ready for start up.'
   echo

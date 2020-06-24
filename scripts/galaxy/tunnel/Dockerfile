@@ -4,7 +4,7 @@ FROM alpine:3.12
 MAINTAINER calvin <c6supper@hotmail.com>
 
 ENV GALAXY_DIR /galaxy
-ENV OVPN_INITIALIZED_MARK "#patched"
+ENV GALAXY_INITIALIZED_MARK $GALAXY_DIR/patched
 RUN mkdir -p $GALAXY_DIR
 COPY ./version $GALAXY_DIR/version
 COPY ./docker-entrypoint.sh /galaxy/docker-entrypoint.sh

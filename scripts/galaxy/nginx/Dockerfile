@@ -5,10 +5,6 @@ FROM alpine:${ALPINE_VERSION} AS builder
 
 MAINTAINER calvin <c6supper@hotmail.com>
 
-ENV GALAXY_DIR /galaxy
-RUN mkdir -p $GALAXY_DIR
-COPY ./version $GALAXY_DIR/version
-
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
 # duplicated in an ARG in the second stage of the build.
@@ -22,7 +18,7 @@ ARG BUILD_DIR=/tmp/nginx-BUILD
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
     apk add --update openssl-dev pcre-dev zlib-dev libxslt-dev \
-    gd-dev geoip-dev linux-pam-dev build-base bash && \
+    gd-dev geoip-dev linux-pam-dev expat-dev build-base bash && \
     apk add --virtual temppkg &&  \
     apk del temppkg && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
@@ -62,16 +58,28 @@ FROM alpine:${ALPINE_VERSION}
 #
 ARG PREFIX_DIR=/usr
 
+ENV GALAXY_DIR /galaxy
+ENV GALAXY_INITIALIZED_MARK $GALAXY_DIR/patched
+RUN mkdir -p $GALAXY_DIR
+COPY ./version $GALAXY_DIR/version
+COPY ./docker-entrypoint.sh /galaxy/docker-entrypoint.sh
+ENV GALAXY_CLIENT_HOST galaxy-client
+
 # Copy build artifacts into this stage
 COPY --from=builder ${PREFIX_DIR}/sbin/nginx ${PREFIX_DIR}/sbin/nginx
 COPY etc "/etc"
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
     apk add --update openssl pcre zlib libxslt \
-    gd geoip linux-pam bash && \
+    gd geoip linux-pam expat bash gettext && \
     apk add --virtual temppkg &&  \
     apk del temppkg && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
+
+# initilization for the first time
+ENTRYPOINT ["/galaxy/docker-entrypoint.sh"]
+
+STOPSIGNAL SIGTERM
 
 # Expose the default listener port
 EXPOSE 80 443
