@@ -5,4 +5,8 @@
 * Build docker
     1.export nginx source code to directory "nginx"
     2.export nginx profiles to directory "etc/nginx"
-    3.docker build --no-cache -t galaxy:nginx -f Dockerfile ./
+    3.docker build --no-cache -t c6supper/galaxy-nginx -f Dockerfile ./
+    
+* Build release docker
+    1. change the version
+    2. ../../build-env/build.sh c6supper galaxy-nginx release

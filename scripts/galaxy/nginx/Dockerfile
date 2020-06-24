@@ -1,7 +1,13 @@
 
-# Use Debian as base for the build
-ARG DEBIAN_VERSION=stable
-FROM debian:${DEBIAN_VERSION} AS builder
+# Use alphine as base for the build
+ARG ALPINE_VERSION=3.12
+FROM alpine:${ALPINE_VERSION} AS builder
+
+MAINTAINER calvin <c6supper@hotmail.com>
+
+ENV GALAXY_DIR /galaxy
+RUN mkdir -p $GALAXY_DIR
+COPY ./version $GALAXY_DIR/version
 
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
@@ -9,23 +15,17 @@ FROM debian:${DEBIAN_VERSION} AS builder
 #
 ARG PREFIX_DIR=/usr
 
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 # Build arguments
 ARG BUILD_DIR=/tmp/nginx-BUILD
-ARG BUILD_DEPENDENCIES="    \
-        libpcre3-dev    \
-        libssl-dev      \
-        libxslt1-dev    \
-        libgd-dev       \
-        libgeoip-dev    \
-        libpam0g-dev    \
-        gcc make"
 
-# Bring build environment up to date and install build dependencies
-RUN apt-get update                         && \
-    apt-get install -y $BUILD_DEPENDENCIES && \
-    rm -rf /var/lib/apt/lists/*
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --update openssl-dev pcre-dev zlib-dev libxslt-dev \
+    gd-dev geoip-dev linux-pam-dev build-base bash && \
+    apk add --virtual temppkg &&  \
+    apk del temppkg && \
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 # Copy source to container for sake of build
 COPY nginx "$BUILD_DIR"
@@ -52,8 +52,8 @@ RUN set -ex \
     --add-module=../set-misc-nginx-module --with-stream_ssl_preread_module \
     && make -j4 && make install
 
-# Use same Debian as the base for the runtime image
-FROM debian:${DEBIAN_VERSION}-slim
+# Use same alpine as the base for the runtime image
+FROM alpine:${ALPINE_VERSION}
 
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
@@ -62,26 +62,18 @@ FROM debian:${DEBIAN_VERSION}-slim
 #
 ARG PREFIX_DIR=/usr
 
-ARG RUNTIME_DEPENDENCIES=" \
-        libpcre3 \
-        libssl1.1 \
-        libxslt1.1 \
-        libgd3 \
-        libgeoip1 \
-        libpam0g"
-
 # Copy build artifacts into this stage
 COPY --from=builder ${PREFIX_DIR}/sbin/nginx ${PREFIX_DIR}/sbin/nginx
 COPY etc "/etc"
 
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
-# Bring runtime environment up to date and install runtime dependencies
-RUN apt-get update                                          && \
-    apt-get install -y $RUNTIME_DEPENDENCIES                && \
-    apt-get install -y $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
-    rm -rf /var/lib/apt/lists/*                             && \
-    mkdir -p /var/log/nginx/                                && \
-    mkdir -p /var/lib/nginx/body
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --update openssl pcre zlib libxslt \
+    gd geoip linux-pam bash && \
+    apk add --virtual temppkg &&  \
+    apk del temppkg && \
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 # Expose the default listener port
 EXPOSE 80 443
+
+CMD ["nginx"]
