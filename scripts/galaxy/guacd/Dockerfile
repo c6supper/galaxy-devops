@@ -17,7 +17,7 @@ ENV GUACD_VERSION      1.1.0
 ENV CXX='gcc'
 ENV GUACD_LOG_LEVEL=info
 
-RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories &&                  \                                                                                                 \
+RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories                  && \
      apk add --update --no-cache                                                                      \
         cairo                                                                                         \
         libjpeg-turbo                                                                                 \
@@ -33,7 +33,6 @@ RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositorie
         libusb                                                                                        \
         freerdp                                                                                       \
         libwebsockets                                                                              && \
-                                                                                                      \
      apk add --update --no-cache --virtual .build-deps                                                \
         git                                                                                           \
         make                                                                                          \
@@ -61,36 +60,31 @@ RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositorie
         libusb-dev                                                                                    \
         freerdp-dev                                                                                   \
         libwebsockets-dev                                                                          && \
-                                                                                                      \
      mkdir /tmp/build                                                                              && \
      cd /tmp/build                                                                                 && \
-                                                                                                      \
      git clone https://github.com/sean-/ossp-uuid.git                                              && \
      cd ossp-uuid                                                                                  && \
      ./configure                                                                                   && \
-     make                                                                                          && \
+     make -j4                                                                                      && \
      make install                                                                                  && \
      cd ..                                                                                         && \
      ln -s /usr/local/lib/libuuid.so.16.0.22 /lib/libossp-uuid.so                                  && \
-                                                                                                      \
      git clone --branch 0.23 https://github.com/seanmiddleditch/libtelnet.git                      && \
      cd libtelnet                                                                                  && \
      autoreconf -i                                                                                 && \
      autoconf                                                                                      && \
      ./configure                                                                                   && \
-     make                                                                                          && \
+     make -j4                                                                                      && \
      make install                                                                                  && \
      cd ..                                                                                         && \
-                                                                                                      \
      git clone --branch $GUACD_VERSION https://github.com/apache/guacamole-server.git              && \
      cd guacamole-server                                                                           && \
      autoreconf -i                                                                                 && \
      autoconf                                                                                      && \
      ./configure                                                                                   && \
-     make                                                                                          && \
+     make -j4                                                                                      && \
      make install                                                                                  && \
      cd ..                                                                                         && \
-                                                                                                      \
      apk del .build-deps                                                                           && \
      rm -Rf /tmp/build                                                                             && \
      rm -f /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*                               && \

@@ -11,8 +11,6 @@ MAINTAINER calvin <c6supper@hotmail.com>
 #
 ARG PREFIX_DIR=/usr
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-
 # Build arguments
 ARG BUILD_DIR=/tmp/nginx-BUILD
 
