@@ -32,6 +32,7 @@ RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositorie
         pulseaudio                                                                                    \
         libusb                                                                                        \
         freerdp                                                                                       \
+        ffmpeg-libs                                                                                   \
         libwebsockets                                                                              && \
      apk add --update --no-cache --virtual .build-deps                                                \
         git                                                                                           \
@@ -59,6 +60,7 @@ RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositorie
         pulseaudio-dev                                                                                \
         libusb-dev                                                                                    \
         freerdp-dev                                                                                   \
+        ffmpeg-dev                                                                                    \
         libwebsockets-dev                                                                          && \
      mkdir /tmp/build                                                                              && \
      cd /tmp/build                                                                                 && \
@@ -96,4 +98,4 @@ EXPOSE 4822
 
 ENTRYPOINT ["/galaxy/docker-entrypoint.sh"]
 
-CMD ["/usr/local/sbin/guacd", "-b", "0.0.0.0","-L", "$GUACD_LOG_LEVEL", "-f"]
+CMD ["/usr/local/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f"]
