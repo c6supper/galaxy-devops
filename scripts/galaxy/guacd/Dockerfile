@@ -1,123 +1,105 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
 
-#
-# Dockerfile for guacamole-server
-#
+# Use alphine as base for running image
+ARG ALPINE_VERSION=3.12
+FROM alpine:${ALPINE_VERSION}
 
+MAINTAINER calvin <c6supper@hotmail.com>
 
-# Use Debian as base for the build
-ARG DEBIAN_VERSION=stable
-FROM debian:${DEBIAN_VERSION} AS builder
+ENV GALAXY_DIR /galaxy
+ENV GALAXY_INITIALIZED_MARK $GALAXY_DIR/patched
+RUN mkdir -p $GALAXY_DIR
+COPY ./version $GALAXY_DIR/version
+COPY ./docker-entrypoint.sh /galaxy/docker-entrypoint.sh
 
-# Base directory for installed build artifacts.
-# Due to limitations of the Docker image build process, this value is
-# duplicated in an ARG in the second stage of the build.
-#
-ARG PREFIX_DIR=/usr/local/guacamole
-
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
-
-# Build arguments
-ARG BUILD_DIR=/tmp/guacd-docker-BUILD
-ARG BUILD_DEPENDENCIES="              \
-        autoconf                      \
-        automake                      \
-        freerdp2-dev                  \
-        gcc                           \
-        libcairo2-dev                 \
-        libjpeg62-turbo-dev           \
-        libossp-uuid-dev              \
-        libpango1.0-dev               \
-        libpulse-dev                  \
-        libssh2-1-dev                 \
-        libssl-dev                    \
-        libtelnet-dev                 \
-        libtool                       \
-        libvncserver-dev              \
-        libwebsockets-dev             \
-        libwebp-dev                   \
-        make"
-
-# Bring build environment up to date and install build dependencies
-RUN apt-get update                         && \
-    apt-get install -y $BUILD_DEPENDENCIES && \
-    rm -rf /var/lib/apt/lists/*
-
-# Add configuration scripts
-COPY src/guacd-docker/bin "${PREFIX_DIR}/bin/"
-
-# Copy source to container for sake of build
-COPY . "$BUILD_DIR"
-
-# Build guacamole-server from local source
-RUN ${PREFIX_DIR}/bin/build-guacd.sh "$BUILD_DIR" "$PREFIX_DIR"
-
-# Record the packages of all runtime library dependencies
-RUN ${PREFIX_DIR}/bin/list-dependencies.sh    \
-        ${PREFIX_DIR}/sbin/guacd              \
-        ${PREFIX_DIR}/lib/libguac-client-*.so \
-        ${PREFIX_DIR}/lib/freerdp2/guac*.so   \
-        > ${PREFIX_DIR}/DEPENDENCIES
-
-# Use same Debian as the base for the runtime image
-FROM debian:${DEBIAN_VERSION}-slim
-
-# Base directory for installed build artifacts.
-# Due to limitations of the Docker image build process, this value is
-# duplicated in an ARG in the first stage of the build. See also the
-# CMD directive at the end of this build stage.
-#
-ARG PREFIX_DIR=/usr/local/guacamole
-
-# Runtime environment
-ENV LC_ALL=C.UTF-8
-ENV LD_LIBRARY_PATH=${PREFIX_DIR}/lib
+# Update git tags here for new releases
+ENV GUACD_VERSION      1.1.0
+#ENV PULSEAUDIO_VERSION HEAD
+ENV CXX='gcc'
 ENV GUACD_LOG_LEVEL=info
 
-ARG RUNTIME_DEPENDENCIES="            \
-        ca-certificates               \
-        ghostscript                   \
-        fonts-liberation              \
-        fonts-dejavu                  \
-        xfonts-terminus"
+RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories &&                  \                                                                                                 \
+     apk add --update --no-cache                                                                      \
+        cairo                                                                                         \
+        libjpeg-turbo                                                                                 \
+        libpng                                                                                        \
+        pango                                                                                         \
+        libssh2                                                                                       \
+        libvncserver                                                                                  \
+        openssl                                                                                       \
+        libvorbis                                                                                     \
+        libwebp                                                                                       \
+        libsndfile                                                                                    \
+        pulseaudio                                                                                    \
+        libusb                                                                                        \
+        freerdp                                                                                       \
+        libwebsockets                                                                              && \
+                                                                                                      \
+     apk add --update --no-cache --virtual .build-deps                                                \
+        git                                                                                           \
+        make                                                                                          \
+        automake                                                                                      \
+        autoconf                                                                                      \
+        cmake                                                                                         \
+        gcc                                                                                           \
+        libtool                                                                                       \
+        build-base                                                                                    \
+        linux-headers                                                                                 \
+        bsd-compat-headers                                                                            \
+        intltool                                                                                      \
+        musl-dev                                                                                      \
+        cairo-dev                                                                                     \
+        libjpeg-turbo-dev                                                                             \
+        libpng-dev                                                                                    \
+        pango-dev                                                                                     \
+        libssh2-dev                                                                                   \
+        libvncserver-dev                                                                              \
+        openssl-dev                                                                                   \
+        libvorbis-dev                                                                                 \
+        libwebp-dev                                                                                   \
+        libsndfile-dev                                                                                \
+        pulseaudio-dev                                                                                \
+        libusb-dev                                                                                    \
+        freerdp-dev                                                                                   \
+        libwebsockets-dev                                                                          && \
+                                                                                                      \
+     mkdir /tmp/build                                                                              && \
+     cd /tmp/build                                                                                 && \
+                                                                                                      \
+     git clone https://github.com/sean-/ossp-uuid.git                                              && \
+     cd ossp-uuid                                                                                  && \
+     ./configure                                                                                   && \
+     make                                                                                          && \
+     make install                                                                                  && \
+     cd ..                                                                                         && \
+     ln -s /usr/local/lib/libuuid.so.16.0.22 /lib/libossp-uuid.so                                  && \
+                                                                                                      \
+     git clone --branch 0.23 https://github.com/seanmiddleditch/libtelnet.git                      && \
+     cd libtelnet                                                                                  && \
+     autoreconf -i                                                                                 && \
+     autoconf                                                                                      && \
+     ./configure                                                                                   && \
+     make                                                                                          && \
+     make install                                                                                  && \
+     cd ..                                                                                         && \
+                                                                                                      \
+     git clone --branch $GUACD_VERSION https://github.com/apache/guacamole-server.git              && \
+     cd guacamole-server                                                                           && \
+     autoreconf -i                                                                                 && \
+     autoconf                                                                                      && \
+     ./configure                                                                                   && \
+     make                                                                                          && \
+     make install                                                                                  && \
+     cd ..                                                                                         && \
+                                                                                                      \
+     apk del .build-deps                                                                           && \
+     rm -Rf /tmp/build                                                                             && \
+     rm -f /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*                               && \
+     mkdir -p /usr/share/fonts/TTF
 
-# Copy build artifacts into this stage
-COPY --from=builder ${PREFIX_DIR} ${PREFIX_DIR}
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
-# Bring runtime environment up to date and install runtime dependencies
-RUN apt-get update                                          && \
-    apt-get install -y $RUNTIME_DEPENDENCIES                && \
-    apt-get install -y $(cat "${PREFIX_DIR}"/DEPENDENCIES)  && \
-    rm -rf /var/lib/apt/lists/*
+COPY LiberationMono-Regular.ttf /usr/share/fonts/TTF/
 
-# Link FreeRDP plugins into proper path
-RUN ${PREFIX_DIR}/bin/link-freerdp-plugins.sh \
-        ${PREFIX_DIR}/lib/freerdp2/libguac*.so
-
-# Expose the default listener port
 EXPOSE 4822
 
-# Start guacd, listening on port 0.0.0.0:4822
-#
-# Note the path here MUST correspond to the value specified in the 
-# PREFIX_DIR build argument.
-#
-CMD /usr/local/guacamole/sbin/guacd -b 0.0.0.0 -L $GUACD_LOG_LEVEL -f
+ENTRYPOINT ["/galaxy/docker-entrypoint.sh"]
 
+CMD ["/usr/local/sbin/guacd", "-b", "0.0.0.0","-L", "$GUACD_LOG_LEVEL", "-f"]
