@@ -26,13 +26,18 @@
 ARG DEBIAN_VERSION=stable
 FROM debian:${DEBIAN_VERSION} AS builder
 
+MAINTAINER calvin <c6supper@hotmail.com>
+ENV GALAXY_DIR /galaxy
+RUN mkdir -p $GALAXY_DIR
+COPY ./version $GALAXY_DIR/version
+
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
 # duplicated in an ARG in the second stage of the build.
 #
 ARG PREFIX_DIR=/usr/local/guacamole
 
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
 
 # Build arguments
 ARG BUILD_DIR=/tmp/guacd-docker-BUILD
@@ -41,6 +46,7 @@ ARG BUILD_DEPENDENCIES="              \
         automake                      \
         freerdp2-dev                  \
         gcc                           \
+        subversion                    \
         libcairo2-dev                 \
         libjpeg62-turbo-dev           \
         libossp-uuid-dev              \
@@ -60,11 +66,17 @@ RUN apt-get update                         && \
     apt-get install -y $BUILD_DEPENDENCIES && \
     rm -rf /var/lib/apt/lists/*
 
-# Add configuration scripts
-COPY src/guacd-docker/bin "${PREFIX_DIR}/bin/"
+# checkout guacamole-server source code
+RUN svn export svn://192.168.68.196/EZ_Remote/guacamole-server/trunk $BUILD_DIR \
+    --username luofeng --password luofeng
 
-# Copy source to container for sake of build
-COPY . "$BUILD_DIR"
+# Add configuration scripts
+RUN svn export svn://192.168.68.196/EZ_Remote/guacamole-server/trunk/src/guacd-docker/bin \
+    ${PREFIX_DIR}/bin/ --username luofeng --password luofeng
+RUN chmod +x ${PREFIX_DIR}/bin/* \
+    $BUILD_DIR/src/protocols/rdp/plugins/generate-entry-wrappers.pl \
+    $BUILD_DIR/src/protocols/rdp/keymaps/generate.pl \
+    $BUILD_DIR/util/generate-test-runner.pl
 
 # Build guacamole-server from local source
 RUN ${PREFIX_DIR}/bin/build-guacd.sh "$BUILD_DIR" "$PREFIX_DIR"
@@ -100,7 +112,7 @@ ARG RUNTIME_DEPENDENCIES="            \
 
 # Copy build artifacts into this stage
 COPY --from=builder ${PREFIX_DIR} ${PREFIX_DIR}
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list;
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list;
 # Bring runtime environment up to date and install runtime dependencies
 RUN apt-get update                                          && \
     apt-get install -y $RUNTIME_DEPENDENCIES                && \
