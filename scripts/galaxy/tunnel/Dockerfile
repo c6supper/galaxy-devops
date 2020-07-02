@@ -28,6 +28,8 @@ ENV OVPN_IP_POOL  10.0.0.0
 ENV OVPN_CA ca.crt
 ENV OVPN_CERT server1.crt
 ENV OVPN_KEY server1.key
+# default configuration for istio
+ENV RUN_AFTER_SIDECAR yes
 
 # initilization for the first time
 ENTRYPOINT ["/galaxy/docker-entrypoint.sh"]

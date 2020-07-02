@@ -25,5 +25,8 @@ else
   echo 'Skipping initialization'
   echo
 fi
-
+ 
+if [ "$RUN_AFTER_SIDECAR" = "yes" ]; then
+	until wget --spider localhost:15000 > /dev/null; do echo '>>> Waiting for sidecar'; sleep 2 ; done ; echo '>>> Sidecar available';sleep 5;
+fi
 /bin/sh -c "$@"
