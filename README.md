@@ -1,8 +1,8 @@
 # 
 
-* Introduction
+* Introduction:
     Script for building the DevOps for Galaxy. 
 
-* steps:
+* Steps:
     1. [VM Installation](vm/readme.md)
     2. [kubesphere Installation](k8s/readme.md)
