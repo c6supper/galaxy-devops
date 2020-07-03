@@ -1,7 +1,7 @@
 # 
 
 * Introduction
-    We are 
+    Script for building the DevOps for Galaxy. 
 
 * steps:
     1. [VM Installation](vm/readme.md)
