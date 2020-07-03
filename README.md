@@ -1,6 +1,7 @@
 # 
 
 * Introduction:
+
     Script for building the DevOps for Galaxy. 
 
 * Steps:
