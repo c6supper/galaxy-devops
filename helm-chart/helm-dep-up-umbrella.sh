@@ -1,7 +1,7 @@
 #!/bin/bash
 
 path=$1
-cd $path
+cd "$path" || exit
 if [ -e requirements.yaml ]; then
   for subDir in $(awk -F'repository: file://' '{print $2}' requirements.yaml)
   do
