@@ -16,5 +16,9 @@ helm install helm-chart
 ```
 
 ### Configuration
-There are several ways to override specific subcharts values.  
+There are several ways to override specific subcharts values.
+```
+1.Set the value in Umbrella chart values.yaml
+2.Override specific sub chart values using --set <subchart_name>.image=v2
+```
 However, each subchart should contain it's own config inside the chart path (i.e. the `.env` file).

@@ -1,6 +1,6 @@
-cra-frontend:
-  image:
-    tag: v2
-cra-backend:
+galaxy-tunnel:
   image:
     tag: v1
+#galaxy-client:
+#  image:
+#    tag: v1
