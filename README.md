@@ -1,9 +1,15 @@
-# 
+# Setup DevOps for Galaxy
+Umbrella chart to install galaxy.  
 
-* Introduction:
+## Requirements
+For a Development environment, you should have at least two VMs (8 cores and 8G ram for the worker node, 2 cores and 8G ram for the master node).
+For the productive environment, using PaaS is suggested.  
 
-    Script for building the DevOps for Galaxy. 
+## Installation
+Since the installation in PaaS is depended on the operators,so we'll be focus on setting up the Development environment: 
+```
+1. VMs
+```
+## Configuration
 
-* Steps:
-    1. [VM Installation](vm/readme.md)
-    2. [kubesphere Installation](k8s/readme.md)
+
