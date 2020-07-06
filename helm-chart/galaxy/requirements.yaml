@@ -2,6 +2,3 @@ dependencies:
   - name: galaxy-tunnel
     version: 1.0.0
     repository: file://../charts/galaxy-tunnel
-#  - name: galaxy-client
-#    version: 1.0.0
-#    repository: file://../charts/galaxy-client
