@@ -12,7 +12,7 @@ Since the Umbrella chart installs its' subcharts, which in turn depend on the Co
 
 Next, simply install the Umbrella chart:
 ```
-helm install helm-chart
+helm install galaxy
 ```
 
 ### Configuration

@@ -1,11 +1,11 @@
-{{- define "common.deployment" -}}
+{{- define "common.statefulset" -}}
 {{- $common := dict "Values" .Values.common -}} 
 {{- $noCommon := omit .Values "common" -}} 
 {{- $overrides := dict "Values" $noCommon -}} 
 {{- $noValues := omit . "Values" -}} 
 {{- with merge $noValues $overrides $common -}}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 {{ template "common.metadata" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
