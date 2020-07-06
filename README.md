@@ -7,8 +7,10 @@
 
 ## Installation
 Since the installation in PaaS is depended on the operators,so we'll be focus on setting up the Development environment: 
-1. **VMs' installation process refer to [VMs](vm/README.md)**
-2. **Docker's installation process refer to [docker](docker/README.md)**
+1. **VMs' installation process refer to [VMs](vm/README.md)**.
+2. **Docker's installation process refer to [docker](docker/README.md)**.
+3. **Kubernetes's installation process refer to [k8s](k8s/README.md)**.
+4. **Helm umbrella charts for Galaxy deployment in k8s refer to [helm-chart](helm-chart/README.md)**.
 
 ## Configuration
 
