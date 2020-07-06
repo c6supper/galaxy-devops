@@ -7,9 +7,7 @@ For the productive environment, using PaaS is suggested.
 
 ## Installation
 Since the installation in PaaS is depended on the operators,so we'll be focus on setting up the Development environment: 
-```
-1. VMs' installation process refer to [VMs](vm/README.md)
-```
+1. **VMs' installation process refer to [VMs](vm/README.md)**
 ## Configuration
 
 
