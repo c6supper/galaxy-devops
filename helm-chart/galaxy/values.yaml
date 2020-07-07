@@ -1,4 +1,5 @@
 galaxy-tunnel:
+  namespaceOverride: galaxy-dev
   image:
     repository: c6supper
     tag: v1
