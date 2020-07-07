@@ -1,1 +1,1 @@
-{{- template "common.deployment" . -}}
+{{- template "common.statefulset" . -}}
