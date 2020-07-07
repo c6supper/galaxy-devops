@@ -1,5 +1,6 @@
 galaxy-tunnel:
   image:
+    repository: c6supper
     tag: v1
 #galaxy-client:
 #  image:
