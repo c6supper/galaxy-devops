@@ -7,10 +7,28 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Expand the version of the chart.
+*/}}
+{{- define "common.version" -}}
+{{- default .Chart.Version | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Expand the namespace of the chart.
 */}}
 {{- define "common.namespace" -}}
 {{- default .Chart.Name .Values.namespaceOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Expand the maintainer of the chart.
+*/}}
+{{- define "common.managed-by" -}}
+{{- if .Values.image.maintainer -}}
+{{- .Values.image.maintainer | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- default .Values.image.repository | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -26,9 +44,16 @@ If release name contains chart name it will be used as a full name.
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s-%s" $name .Values.image.tag .Chart.Version | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Expand the instance of the chart.
+*/}}
+{{- define "common.instance" -}}
+{{- include "common.fullname" . -}}
 {{- end -}}
 
 {{/*

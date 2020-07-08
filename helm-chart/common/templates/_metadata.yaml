@@ -4,7 +4,8 @@ metadata:
   namespace: {{ include "common.namespace" . }}
   labels:
     app.kubernetes.io/name: {{ include "common.name" . }}
+    app.kubernetes.io/version: {{ include "common.version" . }}
+    app.kubernetes.io/instance: {{ include "common.instance" . }}
+    app.kubernetes.io/managed-by: {{ include "common.managed-by" . }}
     helm.sh/chart: {{ include "common.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}

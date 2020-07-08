@@ -7,6 +7,7 @@ replicaCount: 1
 image:
   repository: undefine
   pullPolicy: IfNotPresent
+  tag: undefine
 
 nameOverride: ""
 fullnameOverride: ""

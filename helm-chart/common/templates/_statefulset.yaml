@@ -12,14 +12,14 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "common.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ include "common.instance" . }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         app.kubernetes.io/name: {{ include "common.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ include "common.instance" . }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
