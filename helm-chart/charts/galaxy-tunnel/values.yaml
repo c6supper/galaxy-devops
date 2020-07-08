@@ -13,20 +13,8 @@ namespaceOverride: ""
 
 service:
   type: ClusterIP
-  port: 1194
 
-ingress:
-  enabled: true
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /backend
-  hosts:
-    - localhost
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  port: 1194
 
 configmap: {}
 #  volumeMounts:

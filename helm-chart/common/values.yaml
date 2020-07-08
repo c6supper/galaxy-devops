@@ -15,7 +15,7 @@ namespaceOverride: ""
 
 service:
   type: ClusterIP
-  port: 80
+  port: undefine
 
 ingress:
   enabled: false

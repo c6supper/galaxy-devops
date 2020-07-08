@@ -2,7 +2,7 @@ galaxy-tunnel:
   namespaceOverride: galaxy-dev
   image:
     repository: c6supper
-    tag: v1
+    tag: 1.0.2
 #galaxy-client:
 #  image:
 #    tag: v1
