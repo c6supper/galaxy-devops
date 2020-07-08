@@ -4,22 +4,45 @@
 
 replicaCount: 1
 
-image:
-  tag: v1
-
 nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
+terminationGracePeriodSeconds: 15
+sidecar_inject: "true"
 
 service:
   type: ClusterIP
-
   port: 1194
 
-configmap: {}
-#  volumeMounts:
+statefulset:
+  livenessProbe:
+    tcpSocket:
+      port: tunnel-port
+      initialDelaySeconds: 30
+      periodSeconds: 30
+  readinessProbe:
+    tcpSocket:
+      initialDelaySeconds: 10
+      periodSeconds: 15
+      port: tunnel-port
+  ports:
+    - name: tunnel-port
+      containerPort: 1194
+      protocol: TCP
+  volumeMounts: {}
 #    mountPath: /code/.env
 #    subPath: .env
+  volumeClaimTemplates: {}
+#    - metadata:
+#        name: www
+#      spec:
+#        accessModes: [ "ReadWriteOnce" ]
+#        storageClassName: "my-storage-class"
+#        resources:
+#          requests:
+#            storage: 1Gi
+
+configmap: {}
       
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious

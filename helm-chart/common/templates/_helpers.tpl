@@ -32,6 +32,17 @@ Expand the maintainer of the chart.
 {{- end -}}
 
 {{/*
+Expand the sidecar injection of the chart.
+*/}}
+{{- define "common.sidecar_inject" -}}
+{{- if .Values.sidecar_inject -}}
+{{- .Values.sidecar_inject | quote -}}
+{{- else -}}
+{{- default "false" | quote -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -44,7 +55,7 @@ If release name contains chart name it will be used as a full name.
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s-%s" $name .Values.image.tag .Chart.Version | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" $name .Values.image.tag | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

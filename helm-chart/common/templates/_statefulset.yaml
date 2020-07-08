@@ -17,50 +17,48 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        sidecar.istio.io/inject: {{ include "common.sidecar_inject" . }}
       labels:
         app.kubernetes.io/name: {{ include "common.name" . }}
         app.kubernetes.io/instance: {{ include "common.instance" . }}
     spec:
+      terminationGracePeriodSeconds: {{ default 10 .Values.terminationGracePeriodSeconds }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ template "common.name" . }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.volumeMounts }}
+          {{- if .Values.statefulset.volumeMounts }}
           volumeMounts:
-          - name: {{ include "common.fullname" . }}
-            mountPath: {{ .Values.configmap.volumeMounts.mountPath }}
-            subPath: {{ .Values.configmap.volumeMounts.subPath }}
+            {{ toYaml .Values.statefulset.ports | nindent 12 | trim }}
           {{- end }}
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
+            {{ toYaml .Values.statefulset.ports | nindent 12 | trim }}
+          {{- if .Values.statefulset.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{ toYaml .Values.statefulset.livenessProbe | nindent 12 | trim }}
+          {{- end }}
+          {{- if .Values.statefulset.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{ toYaml .Values.statefulset.readinessProbe | nindent 12 | trim }}
+          {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-      volumes:
-        - name: {{ include "common.fullname" . }}
-          configMap:
-            name: {{ include "common.fullname" . }}
-    {{- with .Values.nodeSelector }}
+            {{ toYaml .Values.resources | nindent 12 | trim }}
+      {{- if .Values.statefulset.volumeClaimTemplates }}
+      volumeClaimTemplates:
+        {{ toYaml .Values.statefulset.volumeClaimTemplates | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.affinity }}
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.affinity }}
       affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
 
 {{- end -}}
 {{- end -}}
