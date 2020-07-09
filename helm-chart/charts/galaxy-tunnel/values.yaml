@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+#Since the tunnel is a statefulset application,
+#we get at least three different ip pools to run in different pods,
+#For now we just setup the "1194" for the development purpose.
 replicaCount: 1
 
 nameOverride: ""
