@@ -13,8 +13,19 @@ namespaceOverride: ""
 sidecar_inject: "true"
 
 service:
-  type: ClusterIP
-  port: 1194
+  spec:
+    clusterIP: None
+    type: ClusterIP
+    sessionAffinity: ClientIP
+    ports:
+      - port: 1194
+        targetPort: 1194
+        protocol: TCP
+        name: tunnel-port
+      - port: 80
+        targetPort: 80
+        protocol: HTTP
+        name: http-forwarding-port
 
 statefulset:
   spec:
@@ -45,7 +56,7 @@ statefulset:
               protocol: TCP
             - name: http-forwarding-port
               containerPort: 80
-              protocol: TCP
+              protocol: HTTP
           securityContext:
             privileged: true
           volumeMounts: {}
