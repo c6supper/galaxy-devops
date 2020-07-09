@@ -36,9 +36,9 @@ Expand the sidecar injection of the chart.
 */}}
 {{- define "common.sidecar_inject" -}}
 {{- if .Values.sidecar_inject -}}
-{{- .Values.sidecar_inject | quote -}}
+{{- .Values.sidecar_inject | squote -}}
 {{- else -}}
-{{- default "false" | quote -}}
+{{- default "false" | squote -}}
 {{- end -}}
 {{- end -}}
 

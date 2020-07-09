@@ -22,27 +22,31 @@ spec:
         app.kubernetes.io/name: {{ include "common.name" . }}
         app.kubernetes.io/instance: {{ include "common.instance" . }}
     spec:
-      terminationGracePeriodSeconds: {{ default 10 .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ default 10 .Values.statefulset.spec.template.spec.terminationGracePeriodSeconds }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ template "common.name" . }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.statefulset.volumeMounts }}
+          {{- if .Values.statefulset.spec.template.spec.containers.volumeMounts }}
           volumeMounts:
-            {{ toYaml .Values.statefulset.ports | nindent 12 | trim }}
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.volumeMounts | nindent 12 | trim }}
           {{- end }}
           ports:
-            {{ toYaml .Values.statefulset.ports | nindent 12 | trim }}
-          {{- if .Values.statefulset.livenessProbe }}
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.ports | nindent 12 | trim }}
+          {{- if .Values.statefulset.spec.template.spec.containers.livenessProbe }}
           livenessProbe:
-            {{ toYaml .Values.statefulset.livenessProbe | nindent 12 | trim }}
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.livenessProbe | nindent 12 | trim }}
           {{- end }}
-          {{- if .Values.statefulset.readinessProbe }}
+          {{- if .Values.statefulset.spec.template.spec.containers.readinessProbe }}
           readinessProbe:
-            {{ toYaml .Values.statefulset.readinessProbe | nindent 12 | trim }}
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.readinessProbe | nindent 12 | trim }}
           {{- end }}
           resources:
-            {{ toYaml .Values.resources | nindent 12 | trim }}
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.resources | nindent 12 | trim }}
+          {{- if .Values.statefulset.spec.template.spec.containers.securityContext }}
+          securityContext:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.securityContext | nindent 12 | trim }}
+          {{- end }}
       {{- if .Values.statefulset.volumeClaimTemplates }}
       volumeClaimTemplates:
         {{ toYaml .Values.statefulset.volumeClaimTemplates | nindent 8 | trim }}

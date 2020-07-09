@@ -7,7 +7,6 @@ replicaCount: 1
 nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
-terminationGracePeriodSeconds: 15
 sidecar_inject: "true"
 
 service:
@@ -15,23 +14,41 @@ service:
   port: 1194
 
 statefulset:
-  livenessProbe:
-    tcpSocket:
-      port: tunnel-port
-      initialDelaySeconds: 30
-      periodSeconds: 30
-  readinessProbe:
-    tcpSocket:
-      initialDelaySeconds: 10
-      periodSeconds: 15
-      port: tunnel-port
-  ports:
-    - name: tunnel-port
-      containerPort: 1194
-      protocol: TCP
-  volumeMounts: {}
-#    mountPath: /code/.env
-#    subPath: .env
+  spec:
+    template:
+      spec:
+        terminationGracePeriodSeconds: 15
+        containers:
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            tcpSocket:
+              port: tunnel-port
+              initialDelaySeconds: 30
+              periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              initialDelaySeconds: 10
+              periodSeconds: 15
+              port: tunnel-port
+          ports:
+            - name: tunnel-port
+              containerPort: 1194
+              protocol: TCP
+            - name: http-forwarding-port
+              containerPort: 80
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts: {}
+        #    mountPath: /code/.env
+        #    subPath: .env
+
   volumeClaimTemplates: {}
 #    - metadata:
 #        name: www
@@ -43,18 +60,6 @@ statefulset:
 #            storage: 1Gi
 
 configmap: {}
-      
-resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-   limits:
-    cpu: 100m
-    memory: 128Mi
-   requests:
-    cpu: 100m
-    memory: 128Mi
 
 nodeSelector: {}
 
