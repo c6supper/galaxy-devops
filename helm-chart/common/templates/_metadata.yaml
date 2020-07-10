@@ -1,6 +1,6 @@
 {{- define "common.metadata" -}}
 metadata:
-  name: {{ include "common.fullname" . }}
+  name: {{ include "common.name" . }}
   namespace: {{ include "common.namespace" . }}
   labels:
     app.kubernetes.io/name: {{ include "common.name" . }}
