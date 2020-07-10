@@ -44,11 +44,11 @@ statefulset:
             tcpSocket:
               port: tunnel-port
               initialDelaySeconds: 30
-              periodSeconds: 30
+              periodSeconds: 60
           readinessProbe:
             tcpSocket:
               initialDelaySeconds: 10
-              periodSeconds: 15
+              periodSeconds: 30
               port: tunnel-port
           ports:
             - name: tunnel-port
