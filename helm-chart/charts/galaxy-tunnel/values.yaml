@@ -25,7 +25,7 @@ service:
       - port: 80
         targetPort: 80
         protocol: TCP
-        name: http-forwarding-port
+        name: http-port
 
 statefulset:
   spec:
@@ -54,7 +54,7 @@ statefulset:
             - name: tunnel-port
               containerPort: 1194
               protocol: TCP
-            - name: http-forwarding-port
+            - name: http-port
               containerPort: 80
               protocol: TCP
           securityContext:
