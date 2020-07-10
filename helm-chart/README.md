@@ -10,10 +10,10 @@ Since the Umbrella chart installs its' subcharts, which in turn depend on the Co
 ./helm-dep-up-umbrella.sh galaxy
 ```
 Next to publish the package, and install from your repo.
-1. **helm package
-2. **[push package to repo](https://c6supper.github.com/helm-repo/README.md)
-3. **make sure your k8s have the "galaxy-dev" namespace.
-4. **helm install galaxy
+1. **helm package**
+2. **[push package to repo](https://c6supper.github.com/helm-repo/README.md)**
+3. **make sure your k8s have the "galaxy-dev" namespace**
+4. **helm install galaxy**
 
 ### Configuration
 There are several ways to override specific subcharts values.
