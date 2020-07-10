@@ -7,12 +7,10 @@ Make sure your `kubectl` is configured to talk to some K8S cluster, and your `he
 ## Installation
 Since the Umbrella chart installs its' subcharts, which in turn depend on the Common chart, a recursive dependency update strategy was required. A simple `helm dep up` command wouldn't do the job here. Hence, run the following script:
 ```
-./helm-dep-up-umbrella.sh umbrella-chart
-```
-
-Next, simply install the Umbrella chart:
-```
-helm install galaxy
+1. ./helm-dep-up-umbrella.sh galaxy
+2. helm package
+3. [move package] to repo(https://c6supper.github.com/helm-repo/README.md)
+4. helm install galaxy
 ```
 
 ### Configuration
