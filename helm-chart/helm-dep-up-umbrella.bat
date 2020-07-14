@@ -1,0 +1,1 @@
+helm dep up charts\galaxy-tunnel && helm dep up galaxy && helm template galaxy --debug

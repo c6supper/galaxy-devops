@@ -1,8 +1,17 @@
-# 
+# Setup DevOps for Galaxy
+**Instruction for how to setup a DevOps for Galaxy distributed version.**  
 
-* Introduction
-    We are 
+## Requirements
+1. **For a Development environment, you should have at least two VMs (8 cores and 8G ram for the worker node, 2 cores and 8G ram for the master node).**
+2. **For the productive environment, using PaaS is suggested.**  
 
-* steps:
-    1. [VM Installation](vm/readme.md)
-    2. [kubesphere Installation](k8s/readme.md)
+## Installation
+Since the installation in PaaS is depended on the operators,so we'll be focus on setting up the Development environment: 
+1. **VMs' installation process refer to [VMs](vm/README.md)**.
+2. **Docker's installation process refer to [docker](docker/README.md)**.
+3. **Kubernetes's installation process refer to [k8s](k8s/README.md)**.
+4. **Helm umbrella charts for Galaxy deployment in k8s refer to [helm-chart](helm-chart/README.md)**.
+
+## Configuration
+
+

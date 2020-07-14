@@ -1,0 +1,68 @@
+{{- define "common.statefulset" -}}
+{{- $common := dict "Values" .Values.common -}} 
+{{- $noCommon := omit .Values "common" -}} 
+{{- $overrides := dict "Values" $noCommon -}} 
+{{- $noValues := omit . "Values" -}} 
+{{- with merge $noValues $overrides $common -}}
+apiVersion: apps/v1
+kind: StatefulSet
+{{ template "common.metadata" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "common.name" . }}
+      app.kubernetes.io/instance: {{ include "common.instance" . }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        sidecar.istio.io/inject: {{ include "common.sidecar_inject" . }}
+      labels:
+        app.kubernetes.io/name: {{ include "common.name" . }}
+        app.kubernetes.io/instance: {{ include "common.instance" . }}
+    spec:
+      terminationGracePeriodSeconds: {{ default 10 .Values.statefulset.spec.template.spec.terminationGracePeriodSeconds }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}/{{ template "common.name" . }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.statefulset.spec.template.spec.containers.volumeMounts }}
+          volumeMounts:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.volumeMounts | nindent 12 | trim }}
+          {{- end }}
+          ports:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.ports | nindent 12 | trim }}
+          {{- if .Values.statefulset.spec.template.spec.containers.livenessProbe }}
+          livenessProbe:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.livenessProbe | nindent 12 | trim }}
+          {{- end }}
+          {{- if .Values.statefulset.spec.template.spec.containers.readinessProbe }}
+          readinessProbe:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.readinessProbe | nindent 12 | trim }}
+          {{- end }}
+          resources:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.resources | nindent 12 | trim }}
+          {{- if .Values.statefulset.spec.template.spec.containers.securityContext }}
+          securityContext:
+            {{ toYaml .Values.statefulset.spec.template.spec.containers.securityContext | nindent 12 | trim }}
+          {{- end }}
+      {{- if .Values.statefulset.volumeClaimTemplates }}
+      volumeClaimTemplates:
+        {{ toYaml .Values.statefulset.volumeClaimTemplates | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 | trim }}
+      {{- end }}
+
+{{- end -}}
+{{- end -}}
