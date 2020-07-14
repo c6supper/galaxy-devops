@@ -1,0 +1,129 @@
+version: "3.4"
+
+services:
+        tunnel:
+                image: c6supper/galaxy-tunnel
+                container_name: galaxy-tunnel
+                privileged: true
+                #hostname: tunnel
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - tunnel
+                restart: always
+                ports:
+                        - "1194:1194/tcp"
+                environment:
+                        OVPN_PORT: 1194
+                        OVPN_PROTO: tcp
+                        OVPN_IP_POOL: 10.0.0.0
+                        OVPN_TLS_AUTH: ta.key
+                        OVPN_CA: ca.crt
+                        OVPN_CERT: server1.crt
+                        OVPN_KEY: server1.key
+                        VPN_SERVERNAME: galaxy_tunnel
+        tunnel2:
+                image: c6supper/galaxy-tunnel
+                container_name: galaxy-tunnel2
+                privileged: true
+                network_mode: host
+                # networks:
+                #        net:
+                #                aliases:
+                #                       - tunnel2
+                restart: always
+                ports:
+                        - "1195:1195/udp"
+                environment:
+                        OVPN_PORT: 1195
+                        OVPN_PROTO: udp
+                        OVPN_IP_POOL: 10.13.13.0
+                        OVPN_TLS_AUTH: longterm/ta.key
+                        OVPN_CA: longterm/ca.crt
+                        OVPN_CERT: longterm/server2.crt
+                        OVPN_KEY: longterm/server2.key
+        tunnel3:
+                image: c6supper/galaxy-tunnel
+                container_name: galaxy-tunnel3
+                privileged: true
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - tunnel3
+                restart: always
+                ports:
+                        - "1196:1196/udp"
+                environment:
+                        OVPN_PORT: 1196
+                        OVPN_PROTO: udp
+                        OVPN_IP_POOL: 10.14.14.0
+                        OVPN_TLS_AUTH: longterm/ta.key
+                        OVPN_CA: longterm/ca.crt
+                        OVPN_CERT: longterm/server3.crt
+                        OVPN_KEY: longterm/server3.key
+        nginx:
+                image: c6supper/galaxy-nginx
+                container_name: galaxy-nginx
+                #hostname: nginx
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - nginx
+                restart: always
+                ports:
+                        - "80:80"
+                        - "443:443"
+                environment:
+                        GALAXY_TUNNEL_HOST: localhost
+                        GALAXY_CLIENT_HOST: localhost
+                        #DOMAIN_NAME: galaxy_nginx
+        client:
+                image: ezremote-client
+                container_name: galaxy-client
+                #hostname: client
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - client
+                restart: always
+                ports:
+                        - "8080:8080"
+                environment:
+                        GALAXY_POSTGRES_HOST: localhost
+                        GALAXY_POSTGRES_DB: guacamole_db
+                        GALAXY_POSTGRES_USER: guacamole_user
+                        GALAXY_POSTGRES_PASSWORD: 123
+        guacd:
+                image: c6supper/galaxy-guacd
+                container_name: galaxy-guacd
+                #hostname: guacd
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - guacd
+                restart: always
+                ports:
+                        - "4822:4822"
+        postgres:
+                image: c6supper/postgres
+                container_name: galaxy-postgres
+                #hostname: postgres
+                network_mode: host
+                #networks:
+                #        net:
+                #                aliases:
+                #                        - postgres
+                restart: always
+                ports:
+                        - "5432:5432"
+                environment:
+                        #POSTGRES_HOST_AUTH_METHOD: trust
+                        POSTGRES_USER: guacamole_user
+                        POSTGRES_PASSWORD: 123
+                        POSTGRES_DB: guacamole_db
+                        #ALLOW_IP_RANGE: "0.0.0.0/0"
