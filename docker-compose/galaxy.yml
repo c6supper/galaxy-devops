@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
    tunnel-1194:
-      image: c6supper/galaxy-tunnel
+      image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
       container_name: galaxy-tunnel-1194
       privileged: true
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1194
@@ -17,11 +17,11 @@ services:
          OVPN_CERT: server1.crt
          OVPN_KEY: server1.key
    tunnel-1195:
-      image: c6supper/galaxy-tunnel
+      image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
       container_name: galaxy-tunnel-1195
       privileged: true
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1195
@@ -32,11 +32,11 @@ services:
          OVPN_CERT: longterm/server2.crt
          OVPN_KEY: longterm/server2.key
    tunnel-1196:
-      image: c6supper/galaxy-tunnel
+      image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
       container_name: galaxy-tunnel-1196
       privileged: true
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1196
@@ -47,40 +47,53 @@ services:
          OVPN_CERT: longterm/server3.crt
          OVPN_KEY: longterm/server3.key
    nginx:
-      image: c6supper/galaxy-nginx
+      image: c6supper/galaxy-nginx:${NGINX_TAG}
       container_name: galaxy-nginx
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       environment:
-         GALAXY_TUNNEL_HOST: localhost
-         GALAXY_CLIENT_HOST: localhost
+         GALAXY_TUNNEL_HOST: ${APP_HOST}
+         GALAXY_CLIENT_HOST: ${APP_HOST}
       depends_on:
          - client
          - tunnel-1194
    client:
-      image: c6supper/galaxy-client
+      image: c6supper/galaxy-client:${CLIENT_TAG}
       container_name: galaxy-client
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       depends_on:
          - postgres
       environment:
-         GALAXY_GUACD_HOST: localhost
-         GALAXY_POSTGRES_HOST: localhost
-         GALAXY_POSTGRES_DB: galaxy_db
-         GALAXY_POSTGRES_USER: galaxy_user
-         GALAXY_POSTGRES_PASSWORD: 123
+         GALAXY_GUACD_HOST: ${APP_HOST}
+         GALAXY_POSTGRES_HOST: ${APP_HOST}
+         GALAXY_POSTGRES_DB: ${CLIENT_DB}
+         GALAXY_POSTGRES_USER: ${APP_POSTGRES_USER}
+         GALAXY_POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
    guacd:
-      image: c6supper/galaxy-guacd
+      image: c6supper/galaxy-guacd:${GUACD_TAG}
       container_name: galaxy-guacd
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
    postgres:
-      image: c6supper/postgres
+      image: c6supper/postgres:${POSTGRES_TAG}
       container_name: galaxy-postgres
-      network_mode: host
-      restart: always
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
       environment:
-         POSTGRES_USER: galaxy_user
-         POSTGRES_PASSWORD: 123
-         POSTGRES_DB: galaxy_db
+         POSTGRES_USER: ${APP_POSTGRES_USER}
+         POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
+         POSTGRES_DB: ${APP_POSTGRES_DB}
+      volumes:
+      - ${POSTGRES_DATA_VOLUME}:/var/lib/postgresql/data
+   keycloak:
+      image: jboss/keycloak:${KEYCLOAK_TAG}
+      container_name: galaxy-keycloak
+      network_mode: ${APP_NETWORK_MODE}
+      restart: ${APP_RESTART_POLICY}
+      environment:
+         KEYCLOAK_USER: ${KEYCLOAK_USER}
+         KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+         POSTGRES_USER: ${APP_POSTGRES_USER}
+         POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
+         POSTGRES_DB: ${KEYCLOAK_DB}
