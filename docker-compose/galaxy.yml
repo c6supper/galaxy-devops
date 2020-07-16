@@ -55,7 +55,7 @@ services:
          GALAXY_TUNNEL_HOST: localhost
          GALAXY_CLIENT_HOST: localhost
       depends_on:
-         - galaxy-client
+         - client
          - tunnel-1194
    client:
       image: c6supper/galaxy-client

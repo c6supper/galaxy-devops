@@ -12,6 +12,9 @@ Since the installation in PaaS is depended on the operators,so we'll be focus on
 3. **Kubernetes's installation process refer to [k8s](k8s/README.md)**.
 4. **Helm umbrella charts for Galaxy deployment in k8s refer to [helm-chart](helm-chart/README.md)**.
 
+## Monolithic Version Installation
+1. **Monolithic Galaxy version refer to [docker-compose](docker-compose/README.md)**.
+
 ## Configuration
 
 
