@@ -1,4 +1,7 @@
 version: '3.7'
+apiVersion: 1.0.0
+name: galaxy
+
 services:
    tunnel-1194:
       image: c6supper/galaxy-tunnel
@@ -6,8 +9,6 @@ services:
       privileged: true
       network_mode: host
       restart: always
-      depends_on:
-         - nginx
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1194
@@ -23,8 +24,6 @@ services:
       privileged: true
       network_mode: host
       restart: always
-      depends_on:
-         - nginx
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1195
@@ -40,8 +39,6 @@ services:
       privileged: true
       network_mode: host
       restart: always
-      depends_on:
-         - nginx
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1196
@@ -59,20 +56,21 @@ services:
       environment:
          GALAXY_TUNNEL_HOST: localhost
          GALAXY_CLIENT_HOST: localhost
+      depends_on:
+         - galaxy-client
+         - tunnel-1194
    client:
-      image: c6supper/ezremote-client
+      image: c6supper/galaxy-client
       container_name: galaxy-client
       network_mode: host
       restart: always
       depends_on:
-         - nginx
-         - guacd
          - postgres
       environment:
          GALAXY_GUACD_HOST: localhost
          GALAXY_POSTGRES_HOST: localhost
-         GALAXY_POSTGRES_DB: guacamole_db
-         GALAXY_POSTGRES_USER: guacamole_user
+         GALAXY_POSTGRES_DB: galaxy_db
+         GALAXY_POSTGRES_USER: galaxy_user
          GALAXY_POSTGRES_PASSWORD: 123
    guacd:
       image: c6supper/galaxy-guacd
@@ -85,6 +83,6 @@ services:
       network_mode: host
       restart: always
       environment:
-         POSTGRES_USER: guacamole_user
+         POSTGRES_USER: galaxy_user
          POSTGRES_PASSWORD: 123
-         POSTGRES_DB: guacamole_db
+         POSTGRES_DB: galaxy_db
