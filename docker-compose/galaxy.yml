@@ -1,6 +1,4 @@
 version: '3.7'
-apiVersion: 1.0.0
-name: galaxy
 
 services:
    tunnel-1194:
