@@ -1,0 +1,90 @@
+version: '3.7'
+services:
+   tunnel-1194:
+      image: c6supper/galaxy-tunnel
+      container_name: galaxy-tunnel-1194
+      privileged: true
+      network_mode: host
+      restart: always
+      depends_on:
+         - nginx
+      environment:
+         RUN_AFTER_SIDECAR: 'no'
+         OVPN_PORT: 1194
+         OVPN_PROTO: tcp
+         OVPN_IP_POOL: 10.0.0.0
+         OVPN_TLS_AUTH: ta.key
+         OVPN_CA: ca.crt
+         OVPN_CERT: server1.crt
+         OVPN_KEY: server1.key
+   tunnel-1195:
+      image: c6supper/galaxy-tunnel
+      container_name: galaxy-tunnel-1195
+      privileged: true
+      network_mode: host
+      restart: always
+      depends_on:
+         - nginx
+      environment:
+         RUN_AFTER_SIDECAR: 'no'
+         OVPN_PORT: 1195
+         OVPN_PROTO: udp
+         OVPN_IP_POOL: 10.13.13.0
+         OVPN_TLS_AUTH: longterm/ta.key
+         OVPN_CA: longterm/ca.crt
+         OVPN_CERT: longterm/server2.crt
+         OVPN_KEY: longterm/server2.key
+   tunnel-1196:
+      image: c6supper/galaxy-tunnel
+      container_name: galaxy-tunnel-1196
+      privileged: true
+      network_mode: host
+      restart: always
+      depends_on:
+         - nginx
+      environment:
+         RUN_AFTER_SIDECAR: 'no'
+         OVPN_PORT: 1196
+         OVPN_PROTO: udp
+         OVPN_IP_POOL: 10.14.14.0
+         OVPN_TLS_AUTH: longterm/ta.key
+         OVPN_CA: longterm/ca.crt
+         OVPN_CERT: longterm/server3.crt
+         OVPN_KEY: longterm/server3.key
+   nginx:
+      image: c6supper/galaxy-nginx
+      container_name: galaxy-nginx
+      network_mode: host
+      restart: always
+      environment:
+         GALAXY_TUNNEL_HOST: localhost
+         GALAXY_CLIENT_HOST: localhost
+   client:
+      image: c6supper/ezremote-client
+      container_name: galaxy-client
+      network_mode: host
+      restart: always
+      depends_on:
+         - nginx
+         - guacd
+         - postgres
+      environment:
+         GALAXY_GUACD_HOST: localhost
+         GALAXY_POSTGRES_HOST: localhost
+         GALAXY_POSTGRES_DB: guacamole_db
+         GALAXY_POSTGRES_USER: guacamole_user
+         GALAXY_POSTGRES_PASSWORD: 123
+   guacd:
+      image: c6supper/galaxy-guacd
+      container_name: galaxy-guacd
+      network_mode: host
+      restart: always
+   postgres:
+      image: c6supper/postgres
+      container_name: galaxy-postgres
+      network_mode: host
+      restart: always
+      environment:
+         POSTGRES_USER: guacamole_user
+         POSTGRES_PASSWORD: 123
+         POSTGRES_DB: guacamole_db
