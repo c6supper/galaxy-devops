@@ -29,11 +29,8 @@ rm -rf /etc/docker/daemon.json
 touch /etc/docker/daemon.json
 cat >> /etc/docker/daemon.json << EOF
 {
- "insecure-registries":["calvin.docker.mirror:5000"],
   "registry-mirrors": [
-    "https://registry.docker-cn.com",
-    "http://hub-mirror.c.163.com",
-    "https://docker.mirrors.ustc.edu.cn"
+    "https://7y3a2yxf.mirror.aliyuncs.com"
   ]
 }
 EOF
