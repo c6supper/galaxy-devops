@@ -14,4 +14,4 @@ env | while read line; do
 done
 
 #docker-compose -f galaxy.yml restart
-cat galaxy.template | envsubst | docker-compose -f - -p "galaxy" up -d
+cat galaxy.template.yaml | envsubst | docker-compose -f - -p "galaxy" up -d

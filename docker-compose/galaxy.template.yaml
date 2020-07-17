@@ -16,6 +16,12 @@ services:
          OVPN_CA: ca.crt
          OVPN_CERT: server1.crt
          OVPN_KEY: server1.key
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    tunnel-1195:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
       container_name: galaxy-tunnel-1195
@@ -31,6 +37,12 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server2.crt
          OVPN_KEY: longterm/server2.key
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    tunnel-1196:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
       container_name: galaxy-tunnel-1196
@@ -46,6 +58,12 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server3.crt
          OVPN_KEY: longterm/server3.key
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    nginx:
       image: c6supper/galaxy-nginx:${NGINX_TAG}
       container_name: galaxy-nginx
@@ -57,6 +75,12 @@ services:
       depends_on:
          - client
          - tunnel-1194
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    client:
       image: c6supper/galaxy-client:${CLIENT_TAG}
       container_name: galaxy-client
@@ -70,11 +94,23 @@ services:
          GALAXY_POSTGRES_DB: ${CLIENT_DB}
          GALAXY_POSTGRES_USER: ${APP_POSTGRES_USER}
          GALAXY_POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    guacd:
       image: c6supper/galaxy-guacd:${GUACD_TAG}
       container_name: galaxy-guacd
       network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    postgres:
       image: c6supper/postgres:${POSTGRES_TAG}
       container_name: galaxy-postgres
@@ -88,6 +124,12 @@ services:
          - type: bind
            source: ${POSTGRES_DATA_VOLUME}
            target: /var/lib/postgresql/data
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+
    keycloak:
       image: jboss/keycloak:${KEYCLOAK_TAG}
       container_name: galaxy-keycloak
@@ -99,3 +141,8 @@ services:
          POSTGRES_USER: ${APP_POSTGRES_USER}
          POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
          POSTGRES_DB: ${KEYCLOAK_DB}
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
