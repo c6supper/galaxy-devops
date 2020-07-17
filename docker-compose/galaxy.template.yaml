@@ -112,7 +112,7 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
 
    postgres:
-      image: c6supper/postgres:${POSTGRES_TAG}
+      image: postgres:${POSTGRES_TAG}
       container_name: galaxy-postgres
       network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
