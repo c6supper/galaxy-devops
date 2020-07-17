@@ -1,5 +1,5 @@
 #!/bin/sh
-
+docker rm -f `docker ps -aq -f name=galaxy_*`
 set -e
 set -o allexport
 source "./.env"
@@ -13,4 +13,5 @@ env | while read line; do
   fi
 done
 
-docker-compose -f galaxy.yml restart
+#docker-compose -f galaxy.yml restart
+cat galaxy.template | envsubst | docker-compose -f - -p "galaxy" up -d
