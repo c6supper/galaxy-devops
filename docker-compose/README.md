@@ -9,5 +9,5 @@
   1. **docker-compose up -f galaxy.yml -d**
   
   ## How to 
-  1. **Verify docker compose yaml, run "docker-compose -f docker-compose/galaxy.yml --env-file docker-compose/.env  config"**
-  2. **Start Galaxy, run "docker-compose -f docker-compose/galaxy.yml --env-file docker-compose/.env  up -d"**
+  1. **Modify environment in .env**
+  2. **Start Galaxy, run "./standalone.sh"**
