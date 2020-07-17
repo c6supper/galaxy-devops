@@ -13,3 +13,4 @@ env | while read line; do
   fi
 done
 
+docker-compose up -f galaxy.yml -d

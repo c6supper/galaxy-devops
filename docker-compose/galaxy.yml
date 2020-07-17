@@ -85,7 +85,9 @@ services:
          POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
          POSTGRES_DB: ${APP_POSTGRES_DB}
       volumes:
-      - ${POSTGRES_DATA_VOLUME}:/var/lib/postgresql/data
+         - type: bind
+           source: ${POSTGRES_DATA_VOLUME}
+           target: /var/lib/postgresql/data
    keycloak:
       image: jboss/keycloak:${KEYCLOAK_TAG}
       container_name: galaxy-keycloak
