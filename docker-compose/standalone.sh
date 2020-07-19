@@ -1,5 +1,6 @@
 #!/bin/sh
 docker rm -f `docker ps -aq -f name=galaxy_*`
+docker network prune -f
 set -e
 set -o allexport
 source "./.env"

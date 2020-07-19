@@ -1,0 +1,57 @@
+#!/bin/bash
+
+USAGE="Attach to Docker Container
+--------------------------
+Attach to Docker Container even if the container does not run
+ssh daemon. This is accomplished by using linux containers
+directly via 'nsenter' (see http://bit.ly/docker_nsenter).
+To install 'nsenter', just execute:
+    $ docker run -v /usr/local/bin:/target jpetazzo/nsenter
+Usage: sudo $(basename $0) [-h] [cid]
+note:
+    nsenter requires root privileges
+options:
+    -h --help:     Print this help message
+    cid:           Docker container ID to attach to.
+                   If ID is not given, latest running docker
+                   container will be attached to as determined
+                   by 'docker ps -l'.
+"
+
+CID=
+
+while true; do
+    case "$1" in
+        -h | --help )
+            echo "$USAGE"
+            exit 0
+            ;;
+        -- )
+            shift;
+            break
+            ;;
+        * )
+            CID=$1;
+            shift;
+            ;;
+    esac
+    if [ -z $1 ]; then
+        break
+    fi
+done
+
+# No container ID provided
+# get the latest running container ID
+if [ -z $CID ]; then
+    CID=$(docker ps -l | grep -v CONTAINER | grep -v Exited | awk '{print $1}')
+fi
+
+# No container ID so exit
+if [ -z $CID ]; then
+   echo 'No latest running container'
+   exit 1
+fi
+
+# attach to container
+PID=$(docker inspect --format {{.State.Pid}} $CID)
+nsenter --target $PID --mount --uts --ipc --net --pid
