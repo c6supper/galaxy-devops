@@ -1,30 +1,25 @@
-version: '2'
-# change downgrade version to V2, because the gateway configuration were removed by V3
-# https://docs.docker.com/compose/compose-file/#ipam
+version: '3.8'
 
 networks:
    tunnel-1194:
       ipam:
          driver: default
          config:
-            - subnet: 10.0.0.0/16
-              ip_range: 10.0.1.0/24
-              gateway: 10.0.1.1
+            - subnet: 10.0.1.0/24
    tunnel-1195:
      ipam:
         driver: default
         config:
-           - subnet: 10.13.0.0/16
-             ip_range: 10.13.14.0/24
-             gateway: 10.13.14.1
+           - subnet: 10.13.14.0/24
    tunnel-1196:
       ipam:
          driver: default
          config:
-            - subnet: 10.14.0.0/16
-              ip_range: 10.14.15.0/24
-              gateway: 10.14.15.1
+            - subnet: 10.14.15.0/24
+
    postgres:
+      driver: bridge
+   client:
       driver: bridge
 
 services:
@@ -33,6 +28,9 @@ services:
       container_name: galaxy-tunnel-1194
       cap_add:
          - NET_ADMIN
+      privileged: true
+      sysctls:
+         net.ipv4.conf.all.proxy_arp: 1
       devices:
          - "/dev/net/tun"
       networks:
@@ -52,6 +50,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - "1194:1194"
 
    tunnel-1195:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
@@ -77,6 +77,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - "1195:1195"
 
    tunnel-1196:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
@@ -102,6 +104,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - "1196:1196"
 
    nginx:
       image: c6supper/galaxy-nginx:${NGINX_TAG}
@@ -109,8 +113,8 @@ services:
       # network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
       environment:
-         GALAXY_TUNNEL_HOST: ${APP_HOST}
-         GALAXY_CLIENT_HOST: ${APP_HOST}
+         GALAXY_TUNNEL_HOST: galaxy-tunnel-1194
+         GALAXY_CLIENT_HOST: galaxy-client
       depends_on:
          - client
          - tunnel-1194
@@ -118,11 +122,15 @@ services:
          - tunnel-1194
          - tunnel-1195
          - tunnel-1196
+         - client
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - "80:80"
+         - "443:443"
 
    client:
       image: c6supper/galaxy-client:${CLIENT_TAG}
@@ -132,13 +140,11 @@ services:
       depends_on:
          - postgres
       networks:
-         - tunnel-1194
-         - tunnel-1195
-         - tunnel-1196
          - postgres
+         - client
       environment:
-         GALAXY_GUACD_HOST: ${APP_HOST}
-         GALAXY_POSTGRES_HOST: ${APP_HOST}
+         GALAXY_GUACD_HOST: galaxy-guacd
+         GALAXY_POSTGRES_HOST: galaxy-postgres
          GALAXY_POSTGRES_DB: ${CLIENT_DB}
          GALAXY_POSTGRES_USER: ${APP_POSTGRES_USER}
          GALAXY_POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
@@ -153,10 +159,12 @@ services:
       container_name: galaxy-guacd
       # network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
+      privileged: true
       networks:
          - tunnel-1194
          - tunnel-1195
          - tunnel-1196
+         - client
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -183,16 +191,17 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
 
 #   keycloak:
-#      image: c6supper/keycloak:${KEYCLOAK_TAG}
+#      image: jboss/keycloak:${KEYCLOAK_TAG}
 #      container_name: galaxy-keycloak
-#      # network_mode: ${APP_NETWORK_MODE}
 #      restart: ${APP_RESTART_POLICY}
+#      networks:
+#         - postgres
 #      environment:
 #         DB_VENDOR: postgres
 #         DB_PORT: ${POSTGRES_PORT}
 #         KEYCLOAK_USER: ${KEYCLOAK_USER}
 #         KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-#         DB_ADDR: ${APP_HOST}
+#         DB_ADDR: galaxy-postgres
 #         DB_DATABASE: ${KEYCLOAK_DB}
 #         DB_USER: ${APP_POSTGRES_USER}
 #         DB_PASSWORD: ${APP_POSTGRES_PASSWORD}
@@ -202,9 +211,7 @@ services:
 #      depends_on:
 #         - postgres
 #      volumes:
-#         - type: bind
-#           source: ${KEYCLOAK_GALAXY_VOLUME}
-#           target: /galaxy
+#         - ${KEYCLOAK_GALAXY_VOLUME}:/galaxy
 #      logging:
 #         driver: ${APP_LOGGING_DRIVER}
 #         options:
