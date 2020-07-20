@@ -1,21 +1,21 @@
 version: '3.8'
 
 networks:
-   tunnel-1194:
+   tunnel-119x:
       ipam:
          driver: default
          config:
             - subnet: 10.0.1.0/24
-   tunnel-1195:
-     ipam:
-        driver: default
-        config:
-           - subnet: 10.13.14.0/24
-   tunnel-1196:
-      ipam:
-         driver: default
-         config:
-            - subnet: 10.14.15.0/24
+#   tunnel-1195:
+#     ipam:
+#        driver: default
+#        config:
+#           - subnet: 10.13.14.0/24
+#   tunnel-1196:
+#      ipam:
+#         driver: default
+#         config:
+#            - subnet: 10.14.15.0/24
 
    postgres:
       driver: bridge
@@ -28,13 +28,11 @@ services:
       container_name: galaxy-tunnel-1194
       cap_add:
          - NET_ADMIN
-      privileged: true
-      sysctls:
-         net.ipv4.conf.all.proxy_arp: 1
       devices:
          - "/dev/net/tun"
       networks:
-         - tunnel-1194
+         - tunnel-119x
+         - client
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -52,6 +50,10 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
       ports:
          - "1194:1194"
+         - "80:80"
+         - "443:443"
+         - "1195:1195"
+         - "1196:1196"
 
    tunnel-1195:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
@@ -60,8 +62,9 @@ services:
          - NET_ADMIN
       devices:
          - "/dev/net/tun"
-      networks:
-         - tunnel-1195
+      network_mode: service:tunnel-1194
+#      networks:
+#         - tunnel-119x
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -77,8 +80,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-      ports:
-         - "1195:1195"
+#      ports:
+#         - "1195:1195"
 
    tunnel-1196:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
@@ -87,8 +90,9 @@ services:
          - NET_ADMIN
       devices:
          - "/dev/net/tun"
-      networks:
-         - tunnel-1196
+      network_mode: service:tunnel-1194
+#      networks:
+#         - tunnel-119x
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -104,8 +108,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-      ports:
-         - "1196:1196"
+#      ports:
+#         - "1196:1196"
 
    nginx:
       image: c6supper/galaxy-nginx:${NGINX_TAG}
@@ -118,19 +122,20 @@ services:
       depends_on:
          - client
          - tunnel-1194
-      networks:
-         - tunnel-1194
-         - tunnel-1195
-         - tunnel-1196
-         - client
+      network_mode: service:tunnel-1194
+#      networks:
+#         - tunnel-1194
+#         - tunnel-1195
+#         - tunnel-1196
+#         - client
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-      ports:
-         - "80:80"
-         - "443:443"
+#      ports:
+#         - "80:80"
+#         - "443:443"
 
    client:
       image: c6supper/galaxy-client:${CLIENT_TAG}
@@ -159,12 +164,12 @@ services:
       container_name: galaxy-guacd
       # network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
-      privileged: true
-      networks:
-         - tunnel-1194
-         - tunnel-1195
-         - tunnel-1196
-         - client
+      network_mode: "service:tunnel-1194"
+#      networks:
+#         - tunnel-1194
+#         - tunnel-1195
+#         - tunnel-1196
+#         - client
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
