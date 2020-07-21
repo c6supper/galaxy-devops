@@ -145,9 +145,12 @@ services:
       environment:
          GALAXY_GUACD_HOST: galaxy-guacd
          GALAXY_POSTGRES_HOST: galaxy-postgres
-         GALAXY_POSTGRES_DB: ${CLIENT_DB}
+         GALAXY_POSTGRES_DB: ${APP_POSTGRES_DB}
          GALAXY_POSTGRES_USER: ${APP_POSTGRES_USER}
          GALAXY_POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
+         GALAXY_CLIENT_DB: ${CLIENT_DB}
+         GALAXY_CLIENT_USER: ${CLIENT_USER}
+         GALAXY_CLIENT_PASSWORD: ${CLIENT_PASSWORD}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
