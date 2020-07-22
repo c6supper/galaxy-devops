@@ -33,6 +33,8 @@ services:
       networks:
          - tunnel-119x
          - client
+      #volumes:
+      #   - ${TUNNEL_1194_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -43,6 +45,7 @@ services:
          OVPN_CA: ca.crt
          OVPN_CERT: server1.crt
          OVPN_KEY: server1.key
+         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -63,8 +66,8 @@ services:
       devices:
          - "/dev/net/tun"
       network_mode: service:tunnel-1194
-#      networks:
-#         - tunnel-119x
+      #volumes:
+      #   - ${TUNNEL_1195_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -75,13 +78,12 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server2.crt
          OVPN_KEY: longterm/server2.key
+         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-#      ports:
-#         - "1195:1195"
 
    tunnel-1196:
       image: c6supper/galaxy-tunnel:${TUNNEL_TAG}
@@ -91,8 +93,8 @@ services:
       devices:
          - "/dev/net/tun"
       network_mode: service:tunnel-1194
-#      networks:
-#         - tunnel-119x
+      #volumes:
+      #   - ${TUNNEL_1196_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
       environment:
          RUN_AFTER_SIDECAR: 'no'
@@ -103,13 +105,12 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server3.crt
          OVPN_KEY: longterm/server3.key
+         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-#      ports:
-#         - "1196:1196"
 
    nginx:
       image: c6supper/galaxy-nginx:${NGINX_TAG}
@@ -119,23 +120,18 @@ services:
       environment:
          GALAXY_TUNNEL_HOST: galaxy-tunnel-1194
          GALAXY_CLIENT_HOST: galaxy-client
+         GALAXY_NGINX_LOG_DIR: ${NGINX_LOG_DIR}
       depends_on:
          - client
          - tunnel-1194
       network_mode: service:tunnel-1194
-#      networks:
-#         - tunnel-1194
-#         - tunnel-1195
-#         - tunnel-1196
-#         - client
+      #volumes:
+      #   - ${NGINX_GALAXY_VOLUME}:${NGINX_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-#      ports:
-#         - "80:80"
-#         - "443:443"
 
    client:
       image: c6supper/galaxy-client:${CLIENT_TAG}
@@ -147,15 +143,18 @@ services:
       networks:
          - postgres
          - client
+      volumes:
+         - ${CLIENT_GALAXY_VOLUME}:${CLIENT_LOG_DIR}
       environment:
-         GALAXY_GUACD_HOST: galaxy-guacd
-         GALAXY_POSTGRES_HOST: galaxy-postgres
+         GALAXY_GUACD_HOST: ${GUACD_HOST}
+         GALAXY_POSTGRES_HOST: ${POSTGRES_HOST}
          GALAXY_POSTGRES_DB: ${APP_POSTGRES_DB}
          GALAXY_POSTGRES_USER: ${APP_POSTGRES_USER}
          GALAXY_POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD}
          GALAXY_CLIENT_DB: ${CLIENT_DB}
          GALAXY_CLIENT_USER: ${CLIENT_USER}
          GALAXY_CLIENT_PASSWORD: ${CLIENT_PASSWORD}
+         GALAXY_CLIENT_LOG_DIR: ${CLIENT_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -167,12 +166,9 @@ services:
       container_name: galaxy-guacd
       # network_mode: ${APP_NETWORK_MODE}
       restart: ${APP_RESTART_POLICY}
-      network_mode: "service:tunnel-1194"
-#      networks:
-#         - tunnel-1194
-#         - tunnel-1195
-#         - tunnel-1196
-#         - client
+      network_mode: service:tunnel-1194
+      depends_on:
+         - tunnel-1194
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
