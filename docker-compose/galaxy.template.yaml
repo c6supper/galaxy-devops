@@ -45,7 +45,6 @@ services:
          OVPN_CA: ca.crt
          OVPN_CERT: server1.crt
          OVPN_KEY: server1.key
-         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -78,7 +77,6 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server2.crt
          OVPN_KEY: longterm/server2.key
-         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -105,7 +103,6 @@ services:
          OVPN_CA: longterm/ca.crt
          OVPN_CERT: longterm/server3.crt
          OVPN_KEY: longterm/server3.key
-         GALAXY_OVPN_LOG_DIR: ${TUNNEL_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -120,7 +117,6 @@ services:
       environment:
          GALAXY_TUNNEL_HOST: galaxy-tunnel-1194
          GALAXY_CLIENT_HOST: galaxy-client
-         GALAXY_NGINX_LOG_DIR: ${NGINX_LOG_DIR}
       depends_on:
          - client
          - tunnel-1194
