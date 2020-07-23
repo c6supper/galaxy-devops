@@ -71,7 +71,7 @@ services:
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1195
-         OVPN_PROTO: udp
+         OVPN_PROTO: tcp
          OVPN_IP_POOL: 10.13.13.0
          OVPN_TLS_AUTH: longterm/ta.key
          OVPN_CA: longterm/ca.crt
@@ -97,7 +97,7 @@ services:
       environment:
          RUN_AFTER_SIDECAR: 'no'
          OVPN_PORT: 1196
-         OVPN_PROTO: udp
+         OVPN_PROTO: tcp
          OVPN_IP_POOL: 10.14.14.0
          OVPN_TLS_AUTH: longterm/ta.key
          OVPN_CA: longterm/ca.crt
