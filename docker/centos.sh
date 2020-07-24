@@ -8,11 +8,19 @@ position="veex_en"
 if [ -n $1 ]; then
     position=$1
 fi
+version="8"
+if [ -n $2 ]; then
+    version=$2
+fi
 
 #if in chengdu, replace default source list
 if [ "$position" = "veex_cn" ]; then
     yum install -y wget
-    wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+    if [ "$version" = "7"  ]; then
+    	wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+    else
+	wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-8.repo
+    fi
 fi
 
 yum remove -y docker \
@@ -26,17 +34,28 @@ yum remove -y docker \
                   docker-ce
 
 yum install -y yum-utils device-mapper-persistent-data lvm2
+
+wget -O /etc/yum.repos.d/docker-ce.repo https://download.docker.com/linux/centos/docker-ce.repo
+
 if [ "$position" = "veex_cn" ]; then
     yum-config-manager \
         --add-repo \
         http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+    #sed -i 's+download.docker.com+mirrors.tuna.tsinghua.edu.cn/docker-ce+' /etc/yum.repos.d/docker-ce.repo
 else
     yum-config-manager \
         --add-repo \
         https://download.docker.com/linux/centos/docker-ce.repo
 fi
 
-yum install -y docker-ce docker-ce-cli containerd.io
+yum makecache
+
+if [ "$version" = "8" ]; then
+   yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+   yum install -y docker-ce docker-ce-cli
+else
+   yum install -y docker-ce docker-ce-cli containerd.io
+fi
 
 usermod -aG docker $(logname)
 gpasswd -a $USER docker
@@ -53,15 +72,18 @@ docker-compose --version
 
 if [ "$position" = "veex_cn" ]; then
     rm -rf /etc/docker/daemon.json
+    mkdir -p /etc/docker
     touch /etc/docker/daemon.json
     cat >> /etc/docker/daemon.json << EOF
     {
       "registry-mirrors": [
-        "https://registry.docker-cn.com"
+        "https://registry.docker-cn.com",
         "https://7y3a2yxf.mirror.aliyuncs.com"
       ]
     }
 EOF
 fi
 
-systemctl restart docker
+systemctl stop docker
+sleep 5
+systemctl start docker
