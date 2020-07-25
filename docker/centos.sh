@@ -53,6 +53,18 @@ yum makecache
 if [ "$version" = "8" ]; then
    yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
    yum install -y docker-ce docker-ce-cli
+   # Allows container to container communication, the solution to the problem
+   firewall-cmd --zone=public --add-masquerade --permanent
+
+   # standard http & https stuff
+   firewall-cmd --zone=public --add-port=80/tcp --permanent
+   firewall-cmd --zone=public --add-port=443/tcp --permanent
+   # + any other port you may need
+   firewall-cmd --zone=public --add-port=1194/tcp --permanent
+   firewall-cmd --zone=public --add-port=1195/tcp --permanent
+   firewall-cmd --zone=public --add-port=1196/tcp --permanent
+   # reload the firewall
+   firewall-cmd --reload
 else
    yum install -y docker-ce docker-ce-cli containerd.io
 fi
