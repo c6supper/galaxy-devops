@@ -195,7 +195,7 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
 
    keycloak-init:
-      image: c6supper/keycloak-init:${KEYCLOAK_INIT_TAG}
+      image: c6supper/galaxy-keycloak-init:${KEYCLOAK_INIT_TAG}
       container_name: galaxy-keycloak-init
       restart: always
       environment:
