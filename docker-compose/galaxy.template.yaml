@@ -223,4 +223,4 @@ services:
                max-size: ${APP_LOGGING_SIZE}
                max-file: ${APP_LOGGING_NUMBER}
       ports:
-         - 8083:8080
+         - 8080:8080
