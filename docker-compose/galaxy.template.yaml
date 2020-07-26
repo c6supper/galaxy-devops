@@ -193,6 +193,17 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - ${POSTGRES_PORT}:${POSTGRES_PORT}
+
+   adminer:
+      image: adminer
+      restart: always
+      container_name: galaxy-postgres-adminer
+      networks:
+         - postgres
+      ports:
+         - 8081:8080
 
    keycloak-init:
       image: c6supper/galaxy-keycloak-init:${KEYCLOAK_INIT_TAG}
@@ -211,13 +222,15 @@ services:
       networks:
          - keycloak
          - postgres
-      volumes:
-         - ${KEYCLOAK_GALAXY_VOLUME}:/galaxy
+#      volumes:
+#         - ${KEYCLOAK_INIT_LOG_VOLUME}:${KEYCLOAK_INIT_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - ${KEYCLOAK_HTTP_PORT}:${KEYCLOAK_HTTP_PORT}
 
    keycloak:
       image: jboss/keycloak:${KEYCLOAK_TAG}
@@ -237,16 +250,16 @@ services:
          JGROUPS_DISCOVERY_PROPERTIES: datasource_jndi_name=java:jboss/datasources/KeycloakDS,info_writer_sleep_time=500,initialize_sql="CREATE TABLE IF NOT EXISTS JGROUPSPING ( own_addr varchar(200) NOT NULL, cluster_name varchar(200) NOT NULL, created timestamp default current_timestamp, ping_data BYTEA, constraint PK_JGROUPSPING PRIMARY KEY (own_addr, cluster_name))"
       depends_on:
          - keycloak-init
-      network_mode: service:tunnel-1194
+      network_mode: service:keycloak-init
 #         networks:
 #            - keycloak
 #            - postgres
-      volumes:
-         - ${KEYCLOAK_GALAXY_VOLUME}:/galaxy
+#      volumes:
+#         - ${KEYCLOAK_GALAXY_VOLUME}:/galaxy
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
-      ports:
-         - 8080:8080
+#      ports:
+#         - 8080:8080
