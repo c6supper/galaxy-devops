@@ -235,6 +235,7 @@ services:
       container_name: galaxy-keycloak
       restart: always
       environment:
+         PROXY_ADDRESS_FORWARDING: "true"
          DB_VENDOR: postgres
          DB_PORT: ${POSTGRES_PORT}
          KEYCLOAK_USER: ${KEYCLOAK_USER}
