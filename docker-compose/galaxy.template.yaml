@@ -175,6 +175,7 @@ services:
          GALAXY_CLIENT_USER: ${CLIENT_USER}
          GALAXY_CLIENT_PASSWORD: ${CLIENT_PASSWORD}
          GALAXY_CLIENT_LOG_DIR: ${CLIENT_LOG_DIR}
+         GALAXY_AUTH_URL: ${GALAXY_AUTH_URL}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
