@@ -112,26 +112,46 @@ services:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
 
-   nginx:
-      image: c6supper/galaxy-nginx:${NGINX_TAG}
-      container_name: galaxy-nginx
-      # network_mode: ${APP_NETWORK_MODE}
+   #nginx:
+      #image: c6supper/galaxy-nginx:${NGINX_TAG}
+      #container_name: galaxy-nginx
+      ## network_mode: ${APP_NETWORK_MODE}
+      #restart: ${APP_RESTART_POLICY}
+      #environment:
+         #GALAXY_TUNNEL_HOST: galaxy-tunnel-1194
+         #GALAXY_CLIENT_HOST: galaxy-client
+      #depends_on:
+         #- client
+         #- tunnel-1194
+         #- keycloak
+      #network_mode: service:tunnel-1194
+      ##volumes:
+      ##   - ${NGINX_GALAXY_VOLUME}:${NGINX_LOG_DIR}
+      #logging:
+         #driver: ${APP_LOGGING_DRIVER}
+         #options:
+            #max-size: ${APP_LOGGING_SIZE}
+            #max-file: ${APP_LOGGING_NUMBER}
+
+   openresty:
+      image: c6supper/galaxy-openresty:${OPENRESTY_TAG}
+      container_name: galaxy-openresty
       restart: ${APP_RESTART_POLICY}
       environment:
-         GALAXY_TUNNEL_HOST: galaxy-tunnel-1194
-         GALAXY_CLIENT_HOST: galaxy-client
+         GALAXY_TUNNEL_HOST: ${TUNNEL_HOST}
+         GALAXY_CLIENT_HOST: ${CLIENT_HOST}
+         GALAXY_KEYCLOAK_HOST: ${KEYCLOAK_HOST}
       depends_on:
          - client
          - tunnel-1194
          - keycloak
       network_mode: service:tunnel-1194
-      #volumes:
-      #   - ${NGINX_GALAXY_VOLUME}:${NGINX_LOG_DIR}
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+
 
    client:
       image: c6supper/galaxy-client:${CLIENT_TAG}
