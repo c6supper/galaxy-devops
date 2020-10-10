@@ -181,6 +181,8 @@ services:
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - "8000:8000"
 
    guacd:
       image: c6supper/galaxy-guacd:${GUACD_TAG}
@@ -209,6 +211,8 @@ services:
          - postgres
       volumes:
          - ${POSTGRES_DATA_VOLUME}:/var/lib/postgresql/data
+      stop_grace_period: 2m
+      stop_signal: SIGINT
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
@@ -259,8 +263,8 @@ services:
          PROXY_ADDRESS_FORWARDING: "true"
          DB_VENDOR: postgres
          DB_PORT: ${POSTGRES_PORT}
-         KEYCLOAK_USER: ${KEYCLOAK_USER}
-         KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+#         KEYCLOAK_USER: ${KEYCLOAK_USER}
+#         KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
          DB_ADDR: galaxy-postgres
          DB_DATABASE: ${KEYCLOAK_DB}
          DB_USER: ${KEYCLOAK_DB_USER}
