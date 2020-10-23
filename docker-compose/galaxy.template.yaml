@@ -23,6 +23,8 @@ networks:
       driver: bridge
    keycloak:
       driver: bridge
+   peerjs:
+      driver: bridge
 
 services:
    tunnel-1194:
@@ -36,6 +38,7 @@ services:
          - tunnel-119x
          - client
          - keycloak
+         - peerjs
       #volumes:
       #   - ${TUNNEL_1194_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
@@ -288,3 +291,15 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
       ports:
          - ${KEYCLOAK_HTTP_PORT}:${KEYCLOAK_HTTP_PORT}
+
+   peerjs:
+      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
+      container_name: galaxy-peerjs
+      restart: ${APP_RESTART_POLICY}
+      networks:
+         - peerjs
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
