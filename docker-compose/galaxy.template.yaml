@@ -145,6 +145,8 @@ services:
          GALAXY_CLIENT_DB: ${CLIENT_DB}
          GALAXY_CLIENT_USER: ${CLIENT_USER}
          GALAXY_CLIENT_PASSWORD: ${CLIENT_PASSWORD}
+         GALAXY_OPENRESTY_RESOLVER: ${OPENRESTY_RESOLVER}
+         GALAXY_POSTGRES_HOST: ${POSTGRES_HOST}
       depends_on:
          - client
          - tunnel-1194
