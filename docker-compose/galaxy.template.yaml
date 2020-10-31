@@ -23,8 +23,12 @@ networks:
       driver: bridge
    keycloak:
       driver: bridge
-   peerjs:
+   mongo:
       driver: bridge
+   rocketchat:
+      driver: bridge
+#   peerjs:
+#      driver: bridge
 
 services:
    tunnel-1194:
@@ -38,7 +42,8 @@ services:
          - tunnel-119x
          - client
          - keycloak
-         - peerjs
+#         - peerjs
+         - rocketchat
       #volumes:
       #   - ${TUNNEL_1194_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
@@ -230,6 +235,7 @@ services:
       container_name: galaxy-postgres-adminer
       networks:
          - postgres
+         - mongo
       ports:
          - 8081:8080
 
@@ -292,14 +298,89 @@ services:
       ports:
          - ${KEYCLOAK_HTTP_PORT}:${KEYCLOAK_HTTP_PORT}
 
-   peerjs:
-      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
-      container_name: galaxy-peerjs
+   mongo:
+      image: mongo:${MONGO_TAG}
+      container_name: galaxy-mongo
       restart: ${APP_RESTART_POLICY}
+      environment:
+         MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       networks:
-         - peerjs
+         - mongo
+      volumes:
+         - ${MONGO_DATA_VOLUME}:/data/db
+      command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+      stop_grace_period: 2m
       logging:
          driver: ${APP_LOGGING_DRIVER}
          options:
             max-size: ${APP_LOGGING_SIZE}
             max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - ${MONGO_PORT}:${MONGO_PORT}
+      labels:
+         - "traefik.enable=false"
+
+   mongo-init-replica:
+      image: mongo:${MONGO_TAG}
+      container_name: galaxy-mongo-init-replica
+      networks:
+         - mongo
+      command: >
+         bash -c
+           "for i in `seq 1 30`; do
+             mongo mongo/rocketchat --eval \"
+               rs.initiate({
+                 _id: 'rs0',
+                 members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+             s=$$? && break || s=$$?;
+             echo \"Tried ${DOLLAR}${DOLLAR}i times. Waiting 5 secs...\";
+             sleep 5;
+           done; (exit ${DOLLAR}${DOLLAR}s)"
+      depends_on:
+         - mongo
+
+   rocketchat:
+      image: rocketchat/rocket.chat:${ROCKETCHAT_TAG}
+      container_name: galaxy-rocketchat
+      networks:
+         - mongo
+         - rocketchat
+      command: >
+         bash -c
+           "for i in `seq 1 30`; do
+             node main.js &&
+             s=$$? && break || s=$$?;
+             echo \"Tried ${DOLLAR}${DOLLAR}i times. Waiting 5 secs...\";
+             sleep 5;
+           done; (exit ${DOLLAR}${DOLLAR}s)"
+      restart: ${APP_RESTART_POLICY}
+      volumes:
+#         - ${CLIENT_GALAXY_VOLUME}:${CLIENT_LOG_DIR}
+         - ${ROCKETCHAT_UPLOAD_VOLUME}:/app/uploads
+      environment:
+         - PORT=${ROCKETCHAT_PORT}
+         - ROOT_URL=http://localhost:${ROCKETCHAT_PORT}
+         - MONGO_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@galaxy-mongo:${MONGO_PORT}/rocketchat
+         - MONGO_OPLOG_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@galaxy-mongo:${MONGO_PORT}/local
+         - MAIL_URL=smtp://smtp.email
+      stop_grace_period: 2m
+      depends_on:
+         - mongo
+      ports:
+         - ${ROCKETCHAT_PORT}:${ROCKETCHAT_PORT}
+      labels:
+         - "traefik.backend=rocketchat"
+         - "traefik.frontend.rule=Host: ${ROCKETCHAT_HOST}"
+
+#   peerjs:
+#      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
+#      container_name: galaxy-peerjs
+#      restart: ${APP_RESTART_POLICY}
+#      networks:
+#         - peerjs
+#      logging:
+#         driver: ${APP_LOGGING_DRIVER}
+#         options:
+#            max-size: ${APP_LOGGING_SIZE}
+#            max-file: ${APP_LOGGING_NUMBER}
