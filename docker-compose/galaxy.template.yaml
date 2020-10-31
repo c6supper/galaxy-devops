@@ -153,6 +153,7 @@ services:
          - client
          - tunnel-1194
          - keycloak
+         - rocketchat
       network_mode: service:tunnel-1194
       logging:
          driver: ${APP_LOGGING_DRIVER}
@@ -302,9 +303,9 @@ services:
       image: mongo:${MONGO_TAG}
       container_name: galaxy-mongo
       restart: ${APP_RESTART_POLICY}
-      environment:
-         MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+#      environment:
+#         MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+#         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       networks:
          - mongo
       volumes:
@@ -343,6 +344,8 @@ services:
    rocketchat:
       image: rocketchat/rocket.chat:${ROCKETCHAT_TAG}
       container_name: galaxy-rocketchat
+      # equivalent to docker run --init, solve the node in process 1, doesn't response for SIGTERM
+      init: true
       networks:
          - mongo
          - rocketchat
@@ -360,9 +363,9 @@ services:
          - ${ROCKETCHAT_UPLOAD_VOLUME}:/app/uploads
       environment:
          - PORT=${ROCKETCHAT_PORT}
-         - ROOT_URL=http://localhost:${ROCKETCHAT_PORT}
-         - MONGO_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@galaxy-mongo:${MONGO_PORT}/rocketchat
-         - MONGO_OPLOG_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@galaxy-mongo:${MONGO_PORT}/local
+         - ROOT_URL=${ROCKETCHAT_ROOT_URL}
+         - MONGO_URL=mongodb://galaxy-mongo:${MONGO_PORT}/rocketchat
+         - MONGO_OPLOG_URL=mongodb://galaxy-mongo:${MONGO_PORT}/local
          - MAIL_URL=smtp://smtp.email
       stop_grace_period: 2m
       depends_on:
@@ -371,7 +374,7 @@ services:
          - ${ROCKETCHAT_PORT}:${ROCKETCHAT_PORT}
       labels:
          - "traefik.backend=rocketchat"
-         - "traefik.frontend.rule=Host: ${ROCKETCHAT_HOST}"
+         - "traefik.frontend.rule=Host: ${ROCKETCHAT_ROOT_URL}"
 
 #   peerjs:
 #      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
