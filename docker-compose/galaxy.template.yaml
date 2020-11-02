@@ -342,13 +342,14 @@ services:
          - mongo
 
    rocketchat:
-      image: rocketchat/rocket.chat:${ROCKETCHAT_TAG}
+      image: rocket.chat:${ROCKETCHAT_TAG}
       container_name: galaxy-rocketchat
       # equivalent to docker run --init, solve the node in process 1, doesn't response for SIGTERM
       init: true
       networks:
          - mongo
          - rocketchat
+         - keycloak
       command: >
          bash -c
            "for i in `seq 1 30`; do
@@ -358,15 +359,37 @@ services:
              sleep 5;
            done; (exit ${DOLLAR}${DOLLAR}s)"
       restart: ${APP_RESTART_POLICY}
+      extra_hosts:
+         - ezremote.veexinc.net:192.168.1.141
       volumes:
 #         - ${CLIENT_GALAXY_VOLUME}:${CLIENT_LOG_DIR}
          - ${ROCKETCHAT_UPLOAD_VOLUME}:/app/uploads
       environment:
          - PORT=${ROCKETCHAT_PORT}
-         - ROOT_URL=${ROCKETCHAT_ROOT_URL}
+         - ROOT_URL=${ROCKETCHAT_ROOT_URL}/chat/
          - MONGO_URL=mongodb://galaxy-mongo:${MONGO_PORT}/rocketchat
          - MONGO_OPLOG_URL=mongodb://galaxy-mongo:${MONGO_PORT}/local
          - MAIL_URL=smtp://smtp.email
+         - ADMIN_USERNAME=${ROCKETCHAT_ADMIN_USERNAME}
+         - ADMIN_PASS=${ROCKETCHAT_ADMIN_PASS}
+         - ADMIN_EMAIL=${ROCKETCHAT_ADMIN_EMAIL}
+         - OVERWRITE_SETTING_Site_Url=${ROCKETCHAT_ROOT_URL}
+#         - Accounts_OAuth_Custom-Keycloak=true
+#         - Accounts_OAuth_Custom-Keycloak-url=${ROCKETCHAT_ROOT_URL}/keycloak/auth
+#         - Accounts_OAuth_Custom-Keycloak-token_path=/realms/VeEX/protocol/openid-connect/token
+#         - Accounts_OAuth_Custom-Keycloak-token_sent_via=header
+#         - Accounts_OAuth_Custom-Keycloak-identity_token_sent_via=header
+#         - Accounts_OAuth_Custom-Keycloak-identity_path=/realms/VeEX/protocol/openid-connect/userinfo
+#         - Accounts_OAuth_Custom-Keycloak-authorize_path=/realms/VeEX/protocol/openid-connect/auth
+#         - Accounts_OAuth_Custom-Keycloak-scope=openid
+#         - Accounts_OAuth_Custom-Keycloak-id=EZRemote
+#         - Accounts_OAuth_Custom-Keycloak-login_style=redirect
+#         - Accounts_OAuth_Custom-Keycloak-button_label_text=Login via Keycloak
+#         - Accounts_OAuth_Custom-Keycloak-button_label_color="#FFFFFF"
+#         - Accounts_OAuth_Custom-Keycloak-button_color="#13679A"
+#         - Accounts_OAuth_Custom-Keycloak-username_field=preferred_username
+#         - Accounts_OAuth_Custom-Keycloak-merge_users=true
+#         - Accounts_OAuth_Custom-Keycloak-access_token_param=access_token
       stop_grace_period: 2m
       depends_on:
          - mongo
@@ -374,7 +397,7 @@ services:
          - ${ROCKETCHAT_PORT}:${ROCKETCHAT_PORT}
       labels:
          - "traefik.backend=rocketchat"
-         - "traefik.frontend.rule=Host: ${ROCKETCHAT_ROOT_URL}"
+         - "traefik.frontend.rule=Host: ${ROCKETCHAT_ROOT_URL}/chat/"
 
 #   peerjs:
 #      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
