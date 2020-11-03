@@ -44,6 +44,7 @@ services:
          - keycloak
 #         - peerjs
          - rocketchat
+         - postgres
       #volumes:
       #   - ${TUNNEL_1194_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
       restart: ${APP_RESTART_POLICY}
@@ -149,11 +150,17 @@ services:
          GALAXY_TUNNEL_HOST: ${TUNNEL_HOST}
          GALAXY_CLIENT_HOST: ${CLIENT_HOST}
          GALAXY_KEYCLOAK_HOST: ${KEYCLOAK_HOST}
+         GALAXY_CLIENT_DB: ${CLIENT_DB}
+         GALAXY_CLIENT_USER: ${CLIENT_USER}
+         GALAXY_CLIENT_PASSWORD: ${CLIENT_PASSWORD}
+         GALAXY_OPENRESTY_RESOLVER: ${OPENRESTY_RESOLVER}
+         GALAXY_POSTGRES_HOST: ${POSTGRES_HOST}
       depends_on:
          - client
          - tunnel-1194
          - keycloak
          - rocketchat
+         - postgres
       network_mode: service:tunnel-1194
       logging:
          driver: ${APP_LOGGING_DRIVER}
