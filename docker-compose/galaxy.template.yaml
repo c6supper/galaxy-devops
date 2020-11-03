@@ -397,6 +397,8 @@ services:
          - Accounts_OAuth_Custom-Keycloak-username_field=preferred_username
          - Accounts_OAuth_Custom-Keycloak-merge_users=true
          - Accounts_OAuth_Custom-Keycloak-access_token_param=access_token
+         - Iframe_Integration_send_enable=true
+         - Iframe_Integration_receive_enable=true
       stop_grace_period: 2m
       depends_on:
          - mongo
