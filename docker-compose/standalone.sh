@@ -7,6 +7,12 @@ set -o allexport
 source "./.env"
 set +o allexport
 
+until [ $# -eq 0 ]
+do
+  name=${1:1}; shift;
+  if [[ -z "$1" || $1 == -* ]] ; then eval "export $name=true"; else eval "export $name=$1"; shift; fi
+done
+
 env | while read line; do
   if [ ! -z "$line" ] ; then
     if [[ $line == *"_VOLUME="* ]]; then
