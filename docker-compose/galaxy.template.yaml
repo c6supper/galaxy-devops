@@ -367,7 +367,7 @@ services:
            done; (exit ${DOLLAR}${DOLLAR}s)"
       restart: ${APP_RESTART_POLICY}
       extra_hosts:
-         - ${APP_SERVER_ROOT_URL}:${APP_DEBUG_SERVER_HOST}
+         - ${APP_DEBUG_SERVER_URL}:${APP_DEBUG_SERVER_HOST}
       volumes:
 #         - ${CLIENT_GALAXY_VOLUME}:${CLIENT_LOG_DIR}
          - ${ROCKETCHAT_UPLOAD_VOLUME}:/app/uploads
@@ -381,6 +381,8 @@ services:
          - ADMIN_PASS=${ROCKETCHAT_ADMIN_PASS}
          - ADMIN_EMAIL=${ROCKETCHAT_ADMIN_EMAIL}
          - OVERWRITE_SETTING_Site_Url=${ROCKETCHAT_ROOT_URL}/chat/
+         - OVERWRITE_SETTING_Show_Setup_Wizard=completed
+         - Language=en
          - Accounts_OAuth_Custom-Keycloak=true
          - Accounts_OAuth_Custom-Keycloak-url=${ROCKETCHAT_ROOT_URL}/keycloak/auth
          - Accounts_OAuth_Custom-Keycloak-token_path=/realms/VeEX/protocol/openid-connect/token
