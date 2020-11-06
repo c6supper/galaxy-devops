@@ -23,6 +23,12 @@ networks:
       driver: bridge
    keycloak:
       driver: bridge
+   mongo:
+      driver: bridge
+   rocketchat:
+      driver: bridge
+#   peerjs:
+#      driver: bridge
 
 services:
    tunnel-1194:
@@ -36,6 +42,8 @@ services:
          - tunnel-119x
          - client
          - keycloak
+#         - peerjs
+         - rocketchat
          - postgres
       #volumes:
       #   - ${TUNNEL_1194_GALAXY_VOLUME}:${TUNNEL_LOG_DIR}
@@ -151,6 +159,7 @@ services:
          - client
          - tunnel-1194
          - keycloak
+         - rocketchat
          - postgres
       network_mode: service:tunnel-1194
       logging:
@@ -234,6 +243,7 @@ services:
       container_name: galaxy-postgres-adminer
       networks:
          - postgres
+         - mongo
       ports:
          - 8081:8080
 
@@ -295,3 +305,119 @@ services:
             max-file: ${APP_LOGGING_NUMBER}
       ports:
          - ${KEYCLOAK_HTTP_PORT}:${KEYCLOAK_HTTP_PORT}
+
+   mongo:
+      image: mongo:${MONGO_TAG}
+      container_name: galaxy-mongo
+      restart: ${APP_RESTART_POLICY}
+#      environment:
+#         MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+#         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      networks:
+         - mongo
+      volumes:
+         - ${MONGO_DATA_VOLUME}:/data/db
+      command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+      stop_grace_period: 2m
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
+      ports:
+         - ${MONGO_PORT}:${MONGO_PORT}
+      labels:
+         - "traefik.enable=false"
+
+   mongo-init-replica:
+      image: mongo:${MONGO_TAG}
+      container_name: galaxy-mongo-init-replica
+      networks:
+         - mongo
+      command: >
+         bash -c
+           "for i in `seq 1 30`; do
+             mongo mongo/rocketchat --eval \"
+               rs.initiate({
+                 _id: 'rs0',
+                 members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+             s=$$? && break || s=$$?;
+             echo \"Tried ${DOLLAR}${DOLLAR}i times. Waiting 5 secs...\";
+             sleep 5;
+           done; (exit ${DOLLAR}${DOLLAR}s)"
+      depends_on:
+         - mongo
+
+   rocketchat:
+      image: rocket.chat:${ROCKETCHAT_TAG}
+      container_name: galaxy-rocketchat
+      # equivalent to docker run --init, solve the node in process 1, doesn't response for SIGTERM
+      init: true
+      networks:
+         - mongo
+         - rocketchat
+         - keycloak
+      command: >
+         bash -c
+           "for i in `seq 1 30`; do
+             node --inspect=0.0.0.0 main.js &&
+             s=$$? && break || s=$$?;
+             echo \"Tried ${DOLLAR}${DOLLAR}i times. Waiting 5 secs...\";
+             sleep 5;
+           done; (exit ${DOLLAR}${DOLLAR}s)"
+      restart: ${APP_RESTART_POLICY}
+      extra_hosts:
+         - ${APP_DEBUG_SERVER_URL}:${APP_DEBUG_SERVER_HOST}
+      volumes:
+#         - ${CLIENT_GALAXY_VOLUME}:${CLIENT_LOG_DIR}
+         - ${ROCKETCHAT_UPLOAD_VOLUME}:/app/uploads
+      environment:
+         - PORT=${ROCKETCHAT_PORT}
+         - ROOT_URL=${ROCKETCHAT_ROOT_URL}/chat/
+         - MONGO_URL=mongodb://galaxy-mongo:${MONGO_PORT}/rocketchat
+         - MONGO_OPLOG_URL=mongodb://galaxy-mongo:${MONGO_PORT}/local
+         - MAIL_URL=smtp://smtp.email
+         - ADMIN_USERNAME=${ROCKETCHAT_ADMIN_USERNAME}
+         - ADMIN_PASS=${ROCKETCHAT_ADMIN_PASS}
+         - ADMIN_EMAIL=${ROCKETCHAT_ADMIN_EMAIL}
+         - OVERWRITE_SETTING_Site_Url=${ROCKETCHAT_ROOT_URL}/chat/
+         - OVERWRITE_SETTING_Show_Setup_Wizard=completed
+         - Language=en
+         - Accounts_OAuth_Custom-Keycloak=true
+         - Accounts_OAuth_Custom-Keycloak-url=${ROCKETCHAT_ROOT_URL}/keycloak/auth
+         - Accounts_OAuth_Custom-Keycloak-token_path=/realms/VeEX/protocol/openid-connect/token
+         - Accounts_OAuth_Custom-Keycloak-token_sent_via=header
+         - Accounts_OAuth_Custom-Keycloak-identity_token_sent_via=header
+         - Accounts_OAuth_Custom-Keycloak-identity_path=/realms/VeEX/protocol/openid-connect/userinfo
+         - Accounts_OAuth_Custom-Keycloak-authorize_path=/realms/VeEX/protocol/openid-connect/auth
+         - Accounts_OAuth_Custom-Keycloak-scope=openid
+         - Accounts_OAuth_Custom-Keycloak-id=EZRemote
+         - Accounts_OAuth_Custom-Keycloak-login_style=redirect
+         - Accounts_OAuth_Custom-Keycloak-button_label_text=Login via Keycloak
+         - Accounts_OAuth_Custom-Keycloak-button_label_color="#FFFFFF"
+         - Accounts_OAuth_Custom-Keycloak-button_color="#13679A"
+         - Accounts_OAuth_Custom-Keycloak-username_field=preferred_username
+         - Accounts_OAuth_Custom-Keycloak-merge_users=true
+         - Accounts_OAuth_Custom-Keycloak-access_token_param=access_token
+         - Iframe_Integration_send_enable=true
+         - Iframe_Integration_receive_enable=true
+      stop_grace_period: 2m
+      depends_on:
+         - mongo
+      ports:
+         - ${ROCKETCHAT_PORT}:${ROCKETCHAT_PORT}
+      labels:
+         - "traefik.backend=rocketchat"
+         - "traefik.frontend.rule=Host: ${ROCKETCHAT_ROOT_URL}/chat/"
+
+#   peerjs:
+#      image: c6supper/galaxy-peerjs:${PEERJS_TAG}
+#      container_name: galaxy-peerjs
+#      restart: ${APP_RESTART_POLICY}
+#      networks:
+#         - peerjs
+#      logging:
+#         driver: ${APP_LOGGING_DRIVER}
+#         options:
+#            max-size: ${APP_LOGGING_SIZE}
+#            max-file: ${APP_LOGGING_NUMBER}
