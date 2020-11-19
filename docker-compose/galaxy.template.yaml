@@ -18,15 +18,30 @@ networks:
 #            - subnet: 10.14.15.0/24
 
    postgres:
-      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 20.20.20.0/24
    client:
-      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 20.20.20.0/24
    keycloak:
-      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 20.20.22.0/24
    mongo:
-      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 20.20.23.0/24
    rocketchat:
-      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 20.20.24.0/24
 #   peerjs:
 #      driver: bridge
 
