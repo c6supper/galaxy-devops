@@ -26,7 +26,7 @@ networks:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.20.0/24
+            - subnet: 20.20.21.0/24
    keycloak:
       ipam:
          driver: default
