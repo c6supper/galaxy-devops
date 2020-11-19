@@ -21,27 +21,27 @@ networks:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.20.0/24
+            - subnet: 172.18.0.0/24
    client:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.21.0/24
+            - subnet: 172.18.1.0/24
    keycloak:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.22.0/24
+            - subnet: 172.18.2.0/24
    mongo:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.23.0/24
+            - subnet: 17.18.3.0/24
    rocketchat:
       ipam:
          driver: default
          config:
-            - subnet: 20.20.24.0/24
+            - subnet: 17.18.4.0/24
 #   peerjs:
 #      driver: bridge
 
