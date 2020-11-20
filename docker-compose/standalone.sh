@@ -7,7 +7,9 @@ set +o allexport
 __usage="
 Usage: $(basename $0) [OPTIONS]
 Options(optional only for debug purpose):
-  -APP_DEBUG_SERVER_URL ezremote.veexinc.net -APP_DEBUG_SERVER_HOST your_debug_server_ip
+  -APP_DEBUG_SERVER_URL your_debug_server_ip -APP_DEBUG_SERVER_HOST your_debug_server_ip \
+  -APP_SERVER_ROOT_URL your_debug_server_ip -GALAXY_AUTH_URL https://your_debug_server_ip \
+  -ROCKETCHAT_ROOT_URL https://your_debug_server_ip
 "
 echo "$__usage"
 
