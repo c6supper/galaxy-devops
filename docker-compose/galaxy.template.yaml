@@ -36,12 +36,12 @@ networks:
       ipam:
          driver: default
          config:
-            - subnet: 17.18.3.0/24
+            - subnet: 172.18.3.0/24
    rocketchat:
       ipam:
          driver: default
          config:
-            - subnet: 17.18.4.0/24
+            - subnet: 172.18.4.0/24
 #   peerjs:
 #      driver: bridge
 
