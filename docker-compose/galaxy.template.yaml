@@ -400,6 +400,8 @@ services:
          - OVERWRITE_SETTING_Site_Url=${ROCKETCHAT_ROOT_URL}/chat/
          - OVERWRITE_SETTING_Show_Setup_Wizard=completed
          - Language=en
+         - Threads_enabled=false
+         - Discussion_enabled=false
 #         - Accounts_OAuth_Custom-Keycloak=true
 #         - Accounts_OAuth_Custom-Keycloak-url=${ROCKETCHAT_ROOT_URL}/keycloak/auth
 #         - Accounts_OAuth_Custom-Keycloak-token_path=/realms/VeEX/protocol/openid-connect/token
