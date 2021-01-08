@@ -5,7 +5,9 @@ networks:
       ipam:
          driver: default
          config:
-            - subnet: 10.0.1.0/24
+            - subnet: 172.18.0.0/27
+            # 172.18.0.0 - 172.18.0.31
+
 #   tunnel-1195:
 #     ipam:
 #        driver: default
@@ -21,27 +23,37 @@ networks:
       ipam:
          driver: default
          config:
-            - subnet: 172.18.0.0/24
+            - subnet: 172.18.0.32/27
+            # 172.18.0.32 - 172.18.0.63
    client:
       ipam:
          driver: default
          config:
-            - subnet: 172.18.1.0/24
+            - subnet: 172.18.0.64/27
+            # 172.18.0.64 - 172.18.0.95
    keycloak:
       ipam:
          driver: default
          config:
-            - subnet: 172.18.2.0/24
+            - subnet: 172.18.0.96/27
+            # 172.18.0.96 - 172.18.0.127
    mongo:
       ipam:
          driver: default
          config:
-            - subnet: 172.18.3.0/24
+            - subnet: 172.18.0.128/27
+            # 172.18.0.128 - 172.18.0.159
    rocketchat:
       ipam:
          driver: default
          config:
-            - subnet: 172.18.4.0/24
+            - subnet: 172.18.0.160/27
+            # 172.18.0.160 - 172.18.0.191
+
+# 2 untapped subnets(total 8 subnets, 6 subnets used):
+# 172.18.0.192 - 172.18.0.223
+# 172.18.0.224 - 172.18.0.255
+
 #   peerjs:
 #      driver: bridge
 
